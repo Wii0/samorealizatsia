@@ -389,11 +389,46 @@ pre.prompt::-webkit-scrollbar{width:9px} pre.prompt::-webkit-scrollbar-thumb{bac
   <div class="grid" id="subjects"></div>
 
   <div class="foot">
-    <span>прогресс хранится в этом браузере</span>
+    <span id="foot-note">прогресс хранится в этом браузере</span>
     <span>
       <button class="btn3" onclick="go('arch')">архив</button>
+      <button class="btn3" onclick="go('sync')">перенос</button>
       <button class="btn3" onclick="wipe()">сброс</button>
     </span>
+  </div>
+</section>
+
+<!-- ============ ПЕРЕНОС ПРОГРЕССА ============ -->
+<section id="s-sync" class="scr">
+  <button class="btn3" onclick="go('home')">← на главную</button>
+  <div class="eyebrow" style="margin-top:14px">Резервная копия</div>
+  <h2>Перенос прогресса</h2>
+  <p class="sub">Прогресс живёт в этом браузере и исчезнет, если почистить данные сайта. Здесь можно снять копию и перенести её на другое устройство.</p>
+
+  <div class="note warn" id="sync-stat">—</div>
+
+  <div class="eyebrow" style="margin:26px 0 10px">Способ 1 · файл</div>
+  <div class="row" style="margin-bottom:6px">
+    <button class="btn" onclick="expFile()">Скачать файл прогресса</button>
+    <button class="btn2" onclick="document.getElementById('imp-file').click()">Загрузить из файла</button>
+    <input type="file" id="imp-file" accept=".json,application/json" style="display:none" onchange="impFile(this)">
+  </div>
+  <p class="sub" style="margin:8px 0 0">Надёжнее всего: файл можно положить в облако или отправить себе.</p>
+
+  <div class="eyebrow" style="margin:30px 0 10px">Способ 2 · код</div>
+  <p class="sub" style="margin:0 0 10px">Удобно для переноса «телефон ↔ компьютер»: скопируй код здесь, вставь там.</p>
+  <pre class="prompt" id="sync-code" style="max-height:150px"></pre>
+  <div class="row" style="margin-bottom:22px">
+    <button class="btn2" onclick="copyText(document.getElementById('sync-code').textContent)">Скопировать код</button>
+  </div>
+  <textarea id="imp-code" placeholder="Вставь сюда код с другого устройства..." style="min-height:120px"></textarea>
+  <div class="row" style="margin-top:12px">
+    <button class="btn" onclick="impCode()">Применить код</button>
+  </div>
+
+  <div class="note" style="margin-top:30px">
+    <b>Что внутри копии:</b> сданные темы с оценками, активная тема, XP, стрик и настройки. Ничего личного, кроме твоих ответов на экзаменах.<br><br>
+    <b>Загрузка заменяет текущий прогресс целиком</b>, а не дополняет его. Перед импортом сохрани текущий, если он тебе нужен.
   </div>
 </section>
 
@@ -1547,6 +1582,75 @@ function go(name){
   if(name==="study") renderStudy();
   if(name==="exam") renderExam();
   if(name==="arch") tab(curTab);
+  if(name==="sync") renderSync();
+}
+
+/* ============================================================
+   ПЕРЕНОС ПРОГРЕССА
+   ============================================================ */
+function b64enc(str){
+  const b=new TextEncoder().encode(str); let s=""; const CH=0x8000;
+  for(let i=0;i<b.length;i+=CH) s+=String.fromCharCode.apply(null,b.subarray(i,i+CH));
+  return btoa(s);
+}
+function b64dec(s){
+  const bin=atob(s.replace(/\s+/g,"")); const b=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(b);
+}
+function renderSync(){
+  const n=Object.keys(S.learned).length, li=levelInfo();
+  document.getElementById("sync-stat").innerHTML =
+    "<b>В копии сейчас:</b> "+n+" сданных тем · уровень "+li.lvl+" · "+S.xp+" XP · стрик "+S.streak
+    + (S.active?" · активная тема есть":" · активной темы нет");
+  document.getElementById("sync-code").textContent = b64enc(JSON.stringify(S));
+  document.getElementById("imp-code").value = "";
+}
+function expFile(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const d=new Date(), pad=x=>String(x).padStart(2,"0");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="ruletka-progress-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".json";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },400);
+  toast("Файл сохранён"); beep(880,.1,"triangle",.06);
+}
+function impFile(inp){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ applyState(rd.result); inp.value=""; };
+  rd.onerror=()=>{ toast("Не удалось прочитать файл"); inp.value=""; };
+  rd.readAsText(f);
+}
+function impCode(){
+  const raw=document.getElementById("imp-code").value.trim();
+  if(!raw){ toast("Вставь код"); return; }
+  let json; try{ json=b64dec(raw); }catch(e){ toast("Код повреждён или неполный"); return; }
+  applyState(json);
+}
+function applyState(json){
+  let obj;
+  try{ obj=JSON.parse(json); }catch(e){ toast("Это не похоже на файл прогресса"); return; }
+  if(!obj || typeof obj!=="object" || !obj.learned || typeof obj.learned!=="object"){
+    toast("Файл не содержит прогресса"); return;
+  }
+  const n=Object.keys(obj.learned).length, mine=Object.keys(S.learned).length;
+  if(!confirm("Загрузить копию: "+n+" сданных тем, "+(obj.xp||0)+" XP.\n\nТекущий прогресс ("+mine+" тем) будет полностью заменён. Продолжить?")) return;
+  S = {
+    v:2,
+    active:  obj.active  || null,
+    learned: obj.learned || {},
+    attempts:obj.attempts|| {},
+    answers: obj.answers || {},
+    xp:      +obj.xp     || 0,
+    streak:  +obj.streak || 0,
+    best:    +obj.best   || 0,
+    mode:    obj.mode==="hard" ? "hard" : "ladder",
+    sound:   obj.sound !== false
+  };
+  save(); confetti("#3ddc97",70); toast("Прогресс загружен: "+n+" тем"); chord("rare");
+  go("home");
 }
 
 /* ============================================================
@@ -1636,6 +1740,9 @@ function renderHome(){
   document.getElementById("hud-xp").style.width = Math.round(li.cur/li.need*100)+"%";
   document.getElementById("hud-xptext").textContent = li.cur+" / "+li.need+" XP";
   document.getElementById("snd-btn").classList.toggle("off",!S.sound);
+  document.getElementById("foot-note").textContent = learnedN>=5
+    ? learnedN+" тем только в этом браузере — сделай копию во вкладке «перенос»"
+    : "прогресс хранится в этом браузере";
 
   document.getElementById("m-ladder").classList.toggle("on",S.mode==="ladder");
   document.getElementById("m-hard").classList.toggle("on",S.mode==="hard");
