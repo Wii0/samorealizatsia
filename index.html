@@ -2637,11 +2637,115 @@ const L2_AT = 2, L3_AT = 6;
 function lvlOf(t){ return LVL3.has(t.id) ? 3 : LVL2.has(t.id) ? 2 : 1; }
 const TIER_BY_LVL = {1:"common", 2:"rare", 3:"epic"};
 
+/* ============================================================
+   ИСТОРИЯ: ГОД И РЕГИОН
+   Год отрицательный = до нашей эры. Регионы крупные — под них
+   есть темы. Державы на глобусе только помечают эпоху и
+   раскрываются в свой регион.
+   ============================================================ */
+const HIST_META = {
+"westphalia":{y:1648,r:["europe"]}, "thucydides":{y:-431,r:["europe"]},
+"industrial":{y:1780,r:["europe"]}, "bretton":{y:1944,r:["americas-n"]},
+"deterrence":{y:1960,r:["eurasia","americas-n"]}, "heartland":{y:1904,r:["eurasia"]},
+"neolithic":{y:-10000,r:["mideast","asia-east"]}, "axial":{y:-500,r:["asia-south","asia-east","europe"]},
+"rome-fall":{y:476,r:["europe"]}, "feudalism":{y:1000,r:["europe"]},
+"black-death":{y:1348,r:["europe","mideast"]}, "discoveries":{y:1492,r:["europe","americas-s","africa"]},
+"reformation":{y:1517,r:["europe"]}, "absolutism":{y:1650,r:["europe"]},
+"enlightenment":{y:1750,r:["europe"]}, "french-rev":{y:1789,r:["europe"]},
+"napoleon":{y:1805,r:["europe"]}, "nationalism":{y:1848,r:["europe"]},
+"imperialism":{y:1885,r:["africa","asia-south","europe"]}, "ww1-causes":{y:1914,r:["europe"]},
+"ww1-consequences":{y:1919,r:["europe","mideast"]}, "russian-rev":{y:1917,r:["eurasia"]},
+"great-depression":{y:1929,r:["americas-n","europe"]}, "totalitarism":{y:1935,r:["europe","eurasia"]},
+"ww2-causes":{y:1938,r:["europe","asia-east"]}, "holocaust":{y:1942,r:["europe"]},
+"cold-war":{y:1960,r:["eurasia","americas-n"]}, "cuban-crisis":{y:1962,r:["americas-s","americas-n"]},
+"decolonization":{y:1960,r:["africa","asia-south"]}, "china-reform":{y:1980,r:["asia-east"]},
+"ussr-collapse":{y:1991,r:["eurasia"]}, "globalization":{y:1995,r:["europe","asia-east"]},
+"eu":{y:1957,r:["europe"]}, "un":{y:1945,r:["europe","americas-n"]},
+"human-rights":{y:1948,r:["europe"]}, "middle-east":{y:1916,r:["mideast"]},
+"israel-palestine":{y:1948,r:["mideast"]}, "terrorism":{y:1990,r:["mideast"]},
+"soft-power":{y:1990,r:["americas-n"]}, "balance-power":{y:1950,r:["europe","americas-n"]},
+"hegemony":{y:1970,r:["americas-n"]}, "demographic-transition":{y:1900,r:["europe","asia-south"]},
+"urbanization":{y:1950,r:["europe","asia-east"]}, "migration":{y:2000,r:["europe","americas-n"]},
+"climate-geopolitics":{y:2015,r:["africa","asia-south"]}, "tech-history":{y:1930,r:["europe","americas-n"]},
+"printing":{y:1450,r:["europe"]}, "pandemics":{y:1918,r:["europe"]},
+"revolutions-theory":{y:1789,r:["europe"]}, "authoritarian":{y:2010,r:["eurasia"]},
+"war-economics":{y:1940,r:["europe"]}, "space-race":{y:1961,r:["americas-n","eurasia"]},
+"internet-history":{y:1990,r:["americas-n"]}, "historiography":{y:1930,r:["europe"]},
+"counterfactual":{y:1990,r:["europe"]}, "memory-politics":{y:2000,r:["europe"]}
+};
+
+const REGIONS = [
+ {id:"europe",     ru:"Европа",            uk:"Європа",            en:"Europe"},
+ {id:"eurasia",    ru:"Россия и Ср. Азия", uk:"Росія і Сер. Азія", en:"Russia & Central Asia"},
+ {id:"mideast",    ru:"Ближний Восток",    uk:"Близький Схід",     en:"Middle East"},
+ {id:"africa",     ru:"Африка",            uk:"Африка",            en:"Africa"},
+ {id:"asia-south", ru:"Южная Азия",        uk:"Південна Азія",     en:"South Asia"},
+ {id:"asia-east",  ru:"Восточная Азия",    uk:"Східна Азія",       en:"East Asia"},
+ {id:"americas-n", ru:"Северная Америка",  uk:"Північна Америка",  en:"North America"},
+ {id:"americas-s", ru:"Латинская Америка", uk:"Латинська Америка", en:"Latin America"}
+];
+
+/* Опорные эпохи. Державы приблизительны и служат ориентиром —
+   каждая раскрывается в крупный регион, по которому есть темы. */
+const ERAS = [
+{y:-3000,ru:"Речные цивилизации",uk:"Річкові цивілізації",en:"River civilisations",e:[
+  ["Шумер","Шумер","Sumer",32,45,7,"mideast"],["Египет","Єгипет","Egypt",26,31,6,"mideast"],
+  ["Хараппа","Хараппа","Harappa",27,70,6,"asia-south"],["Древний Китай","Давній Китай","Ancient China",35,113,7,"asia-east"]]},
+{y:-500,ru:"Классическая древность",uk:"Класична давнина",en:"Classical antiquity",e:[
+  ["Афины и Греция","Афіни і Греція","Athens & Greece",38,23,5,"europe"],["Персия","Персія","Persia",32,52,14,"mideast"],
+  ["Рим","Рим","Rome",42,12,5,"europe"],["Карфаген","Карфаген","Carthage",36,10,5,"africa"],
+  ["Маурьи","Маур'ї","Maurya",23,79,12,"asia-south"],["Чжоу","Чжоу","Zhou",34,112,10,"asia-east"]]},
+{y:100,ru:"Век империй",uk:"Вік імперій",en:"Age of empires",e:[
+  ["Римская империя","Римська імперія","Roman Empire",41,14,17,"europe"],["Парфия","Парфія","Parthia",33,50,12,"mideast"],
+  ["Хань","Хань","Han",34,110,14,"asia-east"],["Кушаны","Кушани","Kushan",34,70,8,"asia-south"]]},
+{y:700,ru:"Раннее средневековье",uk:"Раннє середньовіччя",en:"Early Middle Ages",e:[
+  ["Византия","Візантія","Byzantium",39,30,10,"europe"],["Халифат","Халіфат","Caliphate",28,44,20,"mideast"],
+  ["Тан","Тан","Tang",34,110,14,"asia-east"],["Франки","Франки","Franks",48,4,8,"europe"]]},
+{y:1240,ru:"Монгольский век",uk:"Монгольський вік",en:"The Mongol century",e:[
+  ["Монгольская империя","Монгольська імперія","Mongol Empire",46,95,28,"eurasia"],
+  ["Св. Римская империя","Св. Римська імперія","Holy Roman Empire",49,10,8,"europe"],
+  ["Делийский султанат","Делійський султанат","Delhi Sultanate",26,78,9,"asia-south"],["Мали","Малі","Mali",15,-5,9,"africa"]]},
+{y:1500,ru:"Раннее Новое время",uk:"Ранній Новий час",en:"Early modern era",e:[
+  ["Османы","Османи","Ottomans",39,33,13,"mideast"],["Испания","Іспанія","Spain",40,-4,7,"europe"],
+  ["Мин","Мін","Ming",33,112,14,"asia-east"],["Моголы","Моголи","Mughals",25,78,11,"asia-south"],
+  ["Инки","Інки","Inca",-13,-72,9,"americas-s"],["Сонгай","Сонгай","Songhai",16,-2,9,"africa"]]},
+{y:1750,ru:"Колониальные империи",uk:"Колоніальні імперії",en:"Colonial empires",e:[
+  ["Британия","Британія","Britain",54,-2,5,"europe"],["Франция","Франція","France",47,2,5,"europe"],
+  ["Россия","Росія","Russia",58,60,25,"eurasia"],["Цин","Цін","Qing",36,108,17,"asia-east"],
+  ["Испанская Америка","Іспанська Америка","Spanish America",-10,-65,20,"americas-s"]]},
+{y:1880,ru:"Раздел мира",uk:"Поділ світу",en:"Carving up the world",e:[
+  ["Британская империя","Британська імперія","British Empire",52,-2,6,"europe"],
+  ["Российская империя","Російська імперія","Russian Empire",58,70,28,"eurasia"],
+  ["США","США","United States",39,-98,12,"americas-n"],["Колонии в Африке","Колонії в Африці","African colonies",2,20,20,"africa"],
+  ["Британская Индия","Британська Індія","British India",22,79,11,"asia-south"]]},
+{y:1914,ru:"Канун мировой войны",uk:"Напередодні світової війни",en:"Eve of the world war",e:[
+  ["Антанта","Антанта","Entente",48,2,9,"europe"],["Центральные державы","Центральні держави","Central Powers",50,13,8,"europe"],
+  ["Османы","Османи","Ottomans",39,35,9,"mideast"],["Япония","Японія","Japan",36,138,5,"asia-east"]]},
+{y:1960,ru:"Холодная война",uk:"Холодна війна",en:"The Cold War",e:[
+  ["Западный блок","Західний блок","Western bloc",48,4,10,"europe"],["США","США","United States",39,-98,12,"americas-n"],
+  ["СССР","СРСР","USSR",58,65,28,"eurasia"],["Китай","Китай","China",35,105,15,"asia-east"],
+  ["Неприсоединившиеся","Неприєднані","Non-aligned",8,22,16,"africa"]]},
+{y:2010,ru:"Современный мир",uk:"Сучасний світ",en:"The modern world",e:[
+  ["ЕС","ЄС","European Union",50,10,9,"europe"],["США","США","United States",39,-98,12,"americas-n"],
+  ["Россия","Росія","Russia",60,80,28,"eurasia"],["Китай","Китай","China",35,105,15,"asia-east"],
+  ["Индия","Індія","India",22,79,10,"asia-south"],["Ближний Восток","Близький Схід","Middle East",29,44,10,"mideast"],
+  ["Африка","Африка","Africa",2,20,20,"africa"],["Латинская Америка","Латинська Америка","Latin America",-12,-58,18,"americas-s"]]}];
+
 const SUBJECTS = [SUBJECT_ECON, SUBJECT_MARKETING, SUBJECT_HISTORY, SUBJECT_PSYCH];
 SUBJECTS.forEach(s=>{
   s.topics = s.topics.concat(EXTRA[s.id]||[]);
-  s.topics.forEach(t=>{ t.lvl = lvlOf(t); t.rarity = TIER_BY_LVL[t.lvl]; t.key = s.id+":"+t.id; });
+  s.topics.forEach(t=>{
+    t.lvl = lvlOf(t); t.rarity = TIER_BY_LVL[t.lvl]; t.key = s.id+":"+t.id;
+    if(s.id==="hist"){
+      const m = HIST_META[t.id];
+      if(t.y===undefined) t.y = m ? m.y : 1900;
+      if(!t.r)            t.r = m ? m.r : ["europe"];
+    }
+  });
 });
+/* границы шкалы времени берём из самих данных, чтобы ползунок не врал */
+const HIST_MIN = Math.min.apply(null, SUBJECT_HISTORY.topics.map(t=>t.y));
+const HIST_MAX = Math.max.apply(null, SUBJECT_HISTORY.topics.map(t=>t.y));
 
 const PASS = 7, REPEAT_DAYS = 14, MIN_WORDS = 60;
 /* Один принцип: сложность темы задаёт и цвет, и награду.
@@ -2692,7 +2796,10 @@ function norm(o){
     theme:   o.theme==="dark" || o.theme==="light" ? o.theme : sysTheme(),
     peeked:  o.peeked && typeof o.peeked==="object" ? o.peeked : {},
     lang:    I18N[o.lang] ? o.lang : detectLang(),
-    notes:   o.notes && typeof o.notes==="object" ? o.notes : {}
+    notes:   o.notes && typeof o.notes==="object" ? o.notes : {},
+    hf:      (o.hf && typeof o.hf==="object")
+               ? {lo:+o.hf.lo||HIST_MIN, hi:+o.hf.hi||HIST_MAX, r:Array.isArray(o.hf.r)?o.hf.r:[]}
+               : {lo:HIST_MIN, hi:HIST_MAX, r:[]}
   };
 }
 function load(){
@@ -2713,11 +2820,33 @@ function learnedIn(sid){ return Object.keys(S.learned).filter(x=>x.split(":")[0]
 function maxLvl(sid){ const n=learnedIn(sid); return n>=L3_AT ? 3 : n>=L2_AT ? 2 : 1; }
 function daysSince(ts){ return Math.floor((Date.now()-ts)/864e5); }
 
+/* Фильтр истории: период и регионы. Пустой список регионов = все.
+   Если фильтр обнуляет барабан, он игнорируется — лучше выдать тему,
+   чем оставить человека с пустым экраном. */
+function histFilterOn(){
+  return !!(S.hf && (S.hf.lo>HIST_MIN || S.hf.hi<HIST_MAX || (S.hf.r&&S.hf.r.length)));
+}
+function passHist(t){
+  if(!S.hf) return true;
+  if(t.y < S.hf.lo || t.y > S.hf.hi) return false;
+  if(S.hf.r && S.hf.r.length && !(t.r||[]).some(x=>S.hf.r.indexOf(x)>=0)) return false;
+  return true;
+}
 /* пул с учётом режима: в 'ladder' закрытые уровни не участвуют */
 function pool(sid){
   const s = SUBJECTS.find(x=>x.id===sid);
   const cap = S.mode==="hard" ? 3 : maxLvl(sid);
-  return s.topics.filter(t=>!isLearned(sid,t.id) && !isActive(sid,t.id) && t.lvl<=cap);
+  const base = s.topics.filter(t=>!isLearned(sid,t.id) && !isActive(sid,t.id) && t.lvl<=cap);
+  if(sid!=="hist" || !histFilterOn()) return base;
+  const cut = base.filter(passHist);
+  return cut.length ? cut : base;
+}
+/* сколько тем останется под текущим фильтром — для счётчика в интерфейсе */
+function histCut(){
+  const cap = S.mode==="hard" ? 3 : maxLvl("hist");
+  const base = SUBJECTS.find(x=>x.id==="hist").topics
+    .filter(t=>!isLearned("hist",t.id) && !isActive("hist",t.id) && t.lvl<=cap);
+  return {n: base.filter(passHist).length, total: base.length};
 }
 function lockedCount(sid){
   const s = SUBJECTS.find(x=>x.id===sid), cap = maxLvl(sid);
@@ -3542,6 +3671,225 @@ applyLang();
 applyTheme();
 renderHome();
 
+</script>
+
+<!-- ============================================================
+     ФИЛЬТР ИСТОРИИ: ПЕРИОД И РЕГИОНЫ
+     Отдельный скрипт намеренно: если здесь что-то сломается,
+     приложение выше продолжит работать как раньше.
+     ============================================================ -->
+<script>
+(function(){
+try{
+
+var TXT={
+ ru:{title:"Период и регионы",era:"Эпоха",inDrum:"в барабане",of:"из",
+     reset:"весь мир и все века",powers:"Державы этого времени — клик выбирает их регион",
+     drag:"Тяни, чтобы вращать",bc:"до н.э.",approx:"Береговая линия настоящая, зоны держав приблизительные"},
+ uk:{title:"Період і регіони",era:"Епоха",inDrum:"у барабані",of:"з",
+     reset:"весь світ і всі віки",powers:"Держави того часу — клік обирає їхній регіон",
+     drag:"Тягни, щоб обертати",bc:"до н.е.",approx:"Берегова лінія справжня, зони держав приблизні"},
+ en:{title:"Period and regions",era:"Era",inDrum:"in the drum",of:"of",
+     reset:"whole world, all centuries",powers:"Powers of that time — a click selects their region",
+     drag:"Drag to rotate",bc:"BC",approx:"Coastlines are real, the power zones are approximate"}
+};
+function X(k){ return (TXT[S.lang]||TXT.ru)[k]; }
+function nm(o){ return o[S.lang]||o.ru; }
+function yl(y){ return y<0 ? Math.abs(y)+" "+X("bc") : String(y); }
+function pname(p){ return S.lang==="uk"?p[1]:S.lang==="en"?p[2]:p[0]; }
+
+var ST=[[HIST_MIN,0],[-1000,.2],[500,.38],[1500,.6],[1800,.75],[1900,.86],[HIST_MAX,1]];
+function y2p(y){ for(var i=0;i<ST.length-1;i++){var a=ST[i],b=ST[i+1];if(y<=b[0])return a[1]+(y-a[0])/(b[0]-a[0])*(b[1]-a[1]);} return 1; }
+function p2y(p){ for(var i=0;i<ST.length-1;i++){var a=ST[i],b=ST[i+1];if(p<=b[1])return Math.round(a[0]+(p-a[1])/(b[1]-a[1])*(b[0]-a[0]));} return HIST_MAX; }
+
+var css=document.createElement("style");
+css.textContent=
+".hfx{border:3px solid var(--ink);padding:20px 22px;margin-bottom:var(--sp-3)}"+
+".hfx .hh{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:16px}"+
+".hfx .yr{font-family:var(--mono);font-size:15px;font-weight:700;white-space:nowrap}"+
+".hfx .tk{position:relative;height:34px;cursor:pointer;touch-action:none}"+
+".hfx .tk .bar{position:absolute;top:15px;left:0;right:0;height:4px;background:var(--rule)}"+
+".hfx .tk .sel{position:absolute;top:15px;height:4px;background:var(--acid)}"+
+".hfx .tk .kn{position:absolute;top:7px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}"+
+".hfx .tks{position:relative;height:16px;font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-bottom:20px}"+
+".hfx .tks span{position:absolute;transform:translateX(-50%);white-space:nowrap}"+
+".hfx .body{display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px;align-items:start}"+
+".hfx canvas{width:260px;height:260px;cursor:grab;display:block}"+
+".hfx .cap{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin:10px 0}"+
+".hfx .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}"+
+".hfx .chips button{border:2px solid var(--rule-2);background:none;color:var(--ink-2);padding:7px 13px;font-size:12.5px;font-weight:600;border-radius:0}"+
+".hfx .chips button.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}"+
+".hfx .cnt{font-family:var(--disp);font-size:26px;font-weight:700;letter-spacing:-.03em}"+
+".hfx .cntl{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.07em}"+
+"@media(max-width:760px){.hfx .body{grid-template-columns:1fr}.hfx canvas{width:100%;max-width:300px;height:auto;margin:0 auto}}";
+document.head.appendChild(css);
+
+var box=null,cv=null,ctx=null,d3ok=false,proj=null,gpath=null;
+var rotL=-20,rotP=-14,land=null,gd=null,moved=0,drag=null,spin=null;
+
+function eras(){
+  var a=ERAS.filter(function(e){ return e.y>=S.hf.lo && e.y<=S.hf.hi; });
+  if(!a.length){ var mid=(y2p(S.hf.lo)+y2p(S.hf.hi))/2,bd=1e12,b=ERAS[0];
+    ERAS.forEach(function(e){ var d=Math.abs(y2p(e.y)-mid); if(d<bd){bd=d;b=e;} }); a=[b]; }
+  return a;
+}
+function powers(){ var seen={},out=[];
+  eras().forEach(function(e){ e.e.forEach(function(p){ if(!seen[p[0]]){seen[p[0]]=1;out.push(p);} }); });
+  return out; }
+
+function initD3(){
+  if(typeof d3==="undefined"||!d3.geoOrthographic||!ctx) return false;
+  proj=d3.geoOrthographic().scale(244).translate([260,260]).clipAngle(90);
+  gpath=d3.geoPath(proj,ctx); d3ok=true; return true;
+}
+function globe(){
+  if(!ctx) return;
+  if(!d3ok && !initD3()) return;
+  var cs=getComputedStyle(document.body);
+  var ink=cs.getPropertyValue("--ink")||"#111", rule=cs.getPropertyValue("--rule-2")||"#bbb";
+  var acid=cs.getPropertyValue("--acid")||"#c6f135", paper=cs.getPropertyValue("--paper")||"#fff";
+  proj.rotate([rotL,rotP]);
+  ctx.clearRect(0,0,520,520);
+  ctx.beginPath(); gpath({type:"Sphere"}); ctx.fillStyle=paper; ctx.fill();
+  ctx.strokeStyle=ink; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.beginPath(); gpath(d3.geoGraticule10()); ctx.strokeStyle=rule; ctx.globalAlpha=.5; ctx.lineWidth=.7; ctx.stroke(); ctx.globalAlpha=1;
+  if(land){
+    ctx.beginPath(); gpath(land); ctx.fillStyle=ink; ctx.globalAlpha=.13; ctx.fill(); ctx.globalAlpha=1;
+    ctx.beginPath(); gpath(land); ctx.strokeStyle=ink; ctx.globalAlpha=.55; ctx.lineWidth=1; ctx.stroke(); ctx.globalAlpha=1;
+  }
+  var list=powers();
+  list.forEach(function(p){
+    var on=S.hf.r.indexOf(p[6])>=0;
+    ctx.beginPath(); gpath(d3.geoCircle().center([p[4],p[3]]).radius(p[5])());
+    ctx.fillStyle=on?acid:ink; ctx.globalAlpha=on?.5:.09; ctx.fill();
+    ctx.globalAlpha=on?1:.32; ctx.strokeStyle=ink; ctx.lineWidth=on?2.5:1; ctx.stroke(); ctx.globalAlpha=1;
+  });
+  list.forEach(function(p){
+    var on=S.hf.r.indexOf(p[6])>=0, c=proj([p[4],p[3]]);
+    if(!c||d3.geoDistance([p[4],p[3]],[-rotL,-rotP])>=Math.PI/2) return;
+    ctx.font=(on?"700 ":"500 ")+"14px sans-serif"; ctx.textAlign="center";
+    ctx.lineWidth=4; ctx.strokeStyle=paper; ctx.strokeText(pname(p),c[0],c[1]+4);
+    ctx.fillStyle=ink; ctx.fillText(pname(p),c[0],c[1]+4);
+  });
+}
+function toggleRegion(id){
+  var i=S.hf.r.indexOf(id);
+  if(i>=0) S.hf.r.splice(i,1); else S.hf.r.push(id);
+  save(); render();
+}
+function render(){
+  if(!box) return;
+  var a=y2p(S.hf.lo)*100,b=y2p(S.hf.hi)*100;
+  document.getElementById("hfSel").style.left=a+"%";
+  document.getElementById("hfSel").style.width=(b-a)+"%";
+  document.getElementById("hfA").style.left=a+"%";
+  document.getElementById("hfB").style.left=b+"%";
+  document.getElementById("hfYr").textContent=yl(S.hf.lo)+" — "+yl(S.hf.hi);
+  document.getElementById("hfEra").textContent=X("era")+": "+eras().map(nm).join(" · ");
+  document.getElementById("hfPw").innerHTML=powers().map(function(p){
+    var on=S.hf.r.indexOf(p[6])>=0;
+    return '<button class="'+(on?"on":"")+'" data-r="'+p[6]+'">'+pname(p)+'</button>'; }).join("");
+  document.getElementById("hfRg").innerHTML=REGIONS.map(function(r){
+    var on=S.hf.r.indexOf(r.id)>=0;
+    return '<button class="'+(on?"on":"")+'" data-r="'+r.id+'">'+nm(r)+'</button>'; }).join("");
+  var c=histCut();
+  document.getElementById("hfCnt").textContent=c.n+" "+X("of")+" "+c.total;
+  document.getElementById("hfCntL").textContent=X("inDrum");
+  globe();
+}
+function wire(){
+  var tk=document.getElementById("hfTk");
+  function px(e){ var r=tk.getBoundingClientRect(),x=(e.touches?e.touches[0].clientX:e.clientX);
+    return Math.max(0,Math.min(1,(x-r.left)/r.width)); }
+  function grab(e){ var p=px(e);
+    drag=Math.abs(p-y2p(S.hf.lo))<=Math.abs(p-y2p(S.hf.hi))?"lo":"hi"; mv(e); }
+  function mv(e){ if(!drag)return; var y=p2y(px(e));
+    if(drag==="lo") S.hf.lo=Math.min(y,S.hf.hi-20); else S.hf.hi=Math.max(y,S.hf.lo+20);
+    save(); render(); if(e.preventDefault)e.preventDefault(); }
+  tk.addEventListener("mousedown",grab); tk.addEventListener("touchstart",grab,{passive:false});
+  window.addEventListener("mousemove",mv); window.addEventListener("touchmove",mv,{passive:false});
+  window.addEventListener("mouseup",function(){drag=null;});
+  window.addEventListener("touchend",function(){drag=null;});
+
+  cv.addEventListener("mousedown",function(e){ gd=[e.clientX,e.clientY]; moved=0; cv.style.cursor="grabbing"; });
+  window.addEventListener("mousemove",function(e){ if(!gd)return;
+    var dx=e.clientX-gd[0],dy=e.clientY-gd[1]; moved+=Math.abs(dx)+Math.abs(dy);
+    rotL+=dx*0.35; rotP=Math.max(-80,Math.min(80,rotP-dy*0.35)); gd=[e.clientX,e.clientY]; globe(); });
+  window.addEventListener("mouseup",function(){ gd=null; if(cv) cv.style.cursor="grab"; });
+  cv.addEventListener("click",function(e){ if(moved>6||!d3ok)return;
+    var r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*520,my=(e.clientY-r.top)/r.height*520;
+    var best=null,bd=1e9;
+    powers().forEach(function(p){ var c=proj([p[4],p[3]]); if(!c)return;
+      if(d3.geoDistance([p[4],p[3]],[-rotL,-rotP])>=Math.PI/2)return;
+      var d=Math.sqrt((c[0]-mx)*(c[0]-mx)+(c[1]-my)*(c[1]-my)); if(d<bd){bd=d;best=p;} });
+    if(best&&bd<62) toggleRegion(best[6]); });
+
+  document.getElementById("hfPw").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(b) toggleRegion(b.getAttribute("data-r")); });
+  document.getElementById("hfRg").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(b) toggleRegion(b.getAttribute("data-r")); });
+  document.getElementById("hfRst").addEventListener("click",function(){
+    S.hf={lo:HIST_MIN,hi:HIST_MAX,r:[]}; save(); render(); });
+}
+function build(){
+  box=document.createElement("div"); box.className="hfx";
+  box.innerHTML=
+    '<div class="hh"><div><div class="eyebrow">'+X("title")+'</div>'+
+    '<div class="cntl" id="hfEra">—</div></div><div class="yr" id="hfYr">—</div></div>'+
+    '<div class="tk" id="hfTk"><div class="bar"></div><div class="sel" id="hfSel"></div>'+
+    '<div class="kn" id="hfA"></div><div class="kn" id="hfB"></div></div>'+
+    '<div class="tks" id="hfTks"></div>'+
+    '<div class="body">'+
+      '<div><canvas id="hfCv" width="520" height="520"></canvas>'+
+      '<div class="cap" style="text-align:center">'+X("drag")+'</div></div>'+
+      '<div><div class="cap">'+X("powers")+'</div><div class="chips" id="hfPw"></div>'+
+      '<div class="chips" id="hfRg"></div>'+
+      '<div class="cnt" id="hfCnt">—</div><div class="cntl" id="hfCntL">—</div>'+
+      '<div class="cap" style="margin-top:12px">'+X("approx")+'</div>'+
+      '<button class="btn3" id="hfRst">'+X("reset")+'</button>'+
+      '</div>'+
+    '</div>';
+  var rb=document.getElementById("reelbox");
+  rb.parentNode.insertBefore(box,rb);
+  cv=document.getElementById("hfCv"); ctx=cv.getContext("2d");
+  document.getElementById("hfTks").innerHTML=[HIST_MIN,-1000,0,1000,1500,1800,1900,HIST_MAX]
+    .map(function(y){ return '<span style="left:'+(y2p(y)*100)+'%">'+(y<0?Math.abs(y)+"—":y)+'</span>'; }).join("");
+  wire();
+}
+
+var _open=openSubj;
+openSubj=function(sid){
+  _open(sid);
+  try{
+    if(sid==="hist"){
+      if(!box) build();
+      box.style.display="block"; render();
+      if(!spin) spin=setInterval(function(){
+        if(!gd&&!drag&&d3ok&&box&&box.style.display!=="none"){ rotL+=0.12; globe(); }
+      },70);
+    } else if(box){ box.style.display="none"; }
+  }catch(err){}
+};
+
+/* карта Земли подгружается отдельно: не загрузилась — фильтр работает кнопками */
+var s1=document.createElement("script");
+s1.src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js";
+s1.onload=function(){
+  initD3(); globe();
+  var s2=document.createElement("script");
+  s2.src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js";
+  s2.onload=function(){
+    fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json")
+      .then(function(r){ return r.json(); })
+      .then(function(t){ land=topojson.feature(t,t.objects.land); globe(); })
+      .catch(function(){});
+  };
+  document.head.appendChild(s2);
+};
+document.head.appendChild(s1);
+
+}catch(e){ /* фильтр необязателен: без него рулетка работает как раньше */ }
+})();
 </script>
 </body>
 </html>
