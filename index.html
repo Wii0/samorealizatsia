@@ -281,6 +281,16 @@ button{font:inherit;cursor:pointer;border:none;transition:var(--fast);font-famil
                 font-family:var(--mono);font-size:12px;border-radius:0}
 .queries button:hover{border-color:var(--ink);color:var(--ink)}
 
+/* КОНСПЕКТ */
+.nbgroup{margin-bottom:var(--sp-4)}
+.nbgroup>.gh{font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-.03em;
+             padding-bottom:8px;border-bottom:3px solid var(--ink);margin-bottom:2px}
+.nbrow{border-bottom:1px solid var(--rule);padding:16px 0 16px 16px;border-left:5px solid var(--rc);
+       display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.nbrow .t{font-family:var(--disp);font-weight:500;font-size:17px;letter-spacing:-.02em}
+.nbrow .m{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:4px;letter-spacing:.05em}
+.nbrow .p{font-size:13.5px;color:var(--ink-2);margin-top:8px;max-width:70ch;
+          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .peekbox{border:3px dashed var(--rule-2);padding:20px 22px;margin-bottom:var(--sp-4);max-width:74ch}
 .peekbox p{margin:0 0 14px;font-size:14px;color:var(--ink-2)}
 .theses .h{font-size:11px;text-transform:uppercase;letter-spacing:.19em;font-weight:700;color:var(--ink-3);margin-bottom:14px}
@@ -399,6 +409,7 @@ pre.prompt{background:var(--paper-2);border-left:8px solid var(--ink);padding:22
     <span id="foot-note">прогресс хранится в этом браузере</span>
     <span>
       <button class="btn3" data-i="navArch" onclick="go('arch')"></button>
+      <button class="btn3" data-i="navNote" onclick="go('note')"></button>
       <button class="btn3" data-i="navSync" onclick="go('sync')"></button>
       <button class="btn3" data-i="navWipe" onclick="wipe()"></button>
     </span>
@@ -444,6 +455,7 @@ pre.prompt{background:var(--paper-2);border-left:8px solid var(--ink);padding:22
   <h2 id="exam-title">—</h2>
   <div class="rule"></div>
   <p class="sub" data-i="examDesc"></p>
+  <div class="quest" id="exam-q" style="margin-bottom:var(--sp-3)"></div>
   <textarea id="answer" data-ip="examPh"></textarea>
   <div class="count" id="count">0 слов — нужно минимум 60</div>
   <div class="row" style="margin-top:22px">
@@ -463,6 +475,8 @@ pre.prompt{background:var(--paper-2);border-left:8px solid var(--ink);padding:22
     <button class="btn" data-i="copyPrompt" onclick="copyPrompt()"></button>
     <button class="btn2" data-i="openClaude" onclick="openClaude()"></button>
   </div>
+  <div class="eyebrow" style="margin-bottom:10px" data-i="nbFeedbackLabel"></div>
+  <textarea id="feedback" data-ip="nbFeedbackPh" style="min-height:150px;margin-bottom:var(--sp-4)"></textarea>
   <div class="note warn" id="note-grade"></div>
   <div class="grades" id="grades"></div>
 </section>
@@ -484,6 +498,22 @@ pre.prompt{background:var(--paper-2);border-left:8px solid var(--ink);padding:22
     <button id="tab-todo" data-i="tabTodo" onclick="tab('todo')"></button>
   </div>
   <div class="list" id="arch-list"></div>
+</section>
+
+<!-- ============ КОНСПЕКТ ============ -->
+<section id="s-note" class="scr">
+  <button class="btn3" data-i="backHome" onclick="go('home')"></button>
+  <div class="eyebrow" style="margin-top:22px" data-i="nbEyebrow"></div>
+  <h2 data-i="nbTitle"></h2>
+  <div class="rule"></div>
+  <p class="sub" data-i="nbDesc"></p>
+  <div class="stats" id="nb-stats" style="border-top:none;margin-bottom:var(--sp-3)"></div>
+  <div class="row" style="margin-bottom:var(--sp-3)">
+    <button class="btn" data-i="nbDownload" onclick="nbDownload()"></button>
+    <button class="btn2" data-i="nbPrint" onclick="nbPrint()"></button>
+  </div>
+  <p class="sub" style="margin-top:0" data-i="nbPrintHint"></p>
+  <div id="nb-list"></div>
 </section>
 
 <!-- ============ ПЕРЕНОС ============ -->
@@ -1584,6 +1614,21 @@ ru:{
   closeFirst:"Сначала закрой текущую тему", drumEmpty:"Доступные темы кончились",
   themeDark:"Тёмная тема", themeLight:"Светлая тема",
   contentRu:"Названия тем и чеклисты пока только на русском.",
+  // конспект
+  navNote:"конспект", nbEyebrow:"Личный архив знаний", nbTitle:"Конспект",
+  nbDesc:"Сюда попадает всё, что ты написал сам, и весь разбор от Клода. Копится по мере прохождения — можно перечитать через полгода.",
+  nbEmpty:"Пусто. Сдай первую тему — и она появится здесь.",
+  nbCount:"записей", nbAvg:"средний балл", nbWords:"слов написано",
+  nbDownload:"Скачать конспект", nbPrint:"Печать · сохранить в PDF",
+  nbPrintHint:"Кнопка печати откроет системное окно — там выбери «Сохранить как PDF».",
+  nbFeedbackLabel:"Разбор от Клода — вставь сюда, он попадёт в конспект",
+  nbFeedbackPh:"Вставь ответ Клода целиком: оценку, что раскрыто, что пропущено...",
+  nbAnswer:"Что я понял", nbFeedback:"Разбор", nbTheses:"Ключевые тезисы",
+  nbNoFeedback:"Разбор не сохранён", nbGrade:"оценка", nbSaved:"Конспект сохранён",
+  nbGenerated:"Собрано", nbOpenFail:"Браузер заблокировал окно печати — разреши всплывающие окна",
+  nbSubtitle:"Собственные объяснения и разборы ошибок",
+  examQ:"Вопросы, которые ты раскапывал — отвечай на те, на которые можешь",
+  examQHint:"Не на все обязательно отвечать. Клод отдельно оценит, насколько ты понимаешь тему в целом.",
   // промпт проверки
   P:{
     intro:"Ты — строгий, но справедливый экзаменатор. Проверь, насколько я понял тему. Не хвали из вежливости и не завышай оценку — мне нужна честная картина пробелов.",
@@ -1601,6 +1646,8 @@ ru:{
     fErr:"ОШИБКИ: (что сказано неверно; если ошибок нет — так и напиши)",
     fLearn:"ЧТО ДОУЧИТЬ: (2-3 конкретных пункта)",
     fQ:"ВОПРОС НА ПОНИМАНИЕ: (один вопрос, на который я смогу ответить, только если действительно понял тему)",
+    fWhole:"ПОНИМАНИЕ В ЦЕЛОМ: (даже если я раскрыл не всё — насколько я понимаю саму суть, логику и механизм темы? Вижу ли связи? Отдельная оценка по 10-балльной шкале и два-три предложения)",
+    partial:"Важно: я искал ответы сам и мог раскрыть не все пункты. Не снижай оценку только за то, что чего-то нет — сначала посмотри, понимаю ли я механизм и логику темы. Пробел в фактах и непонимание сути — разные вещи, и второе хуже.",
     tail:"Проходной балл — 7 из 10. Ставь 7 и выше только если раскрыто большинство ключевых тезисов и нет грубых фактических ошибок. Пересказ близко к тексту без понимания механизма — не выше 6.",
     lang:"Отвечай на русском языке."
   }
@@ -1692,6 +1739,20 @@ uk:{
   closeFirst:"Спочатку закрий поточну тему", drumEmpty:"Доступні теми скінчилися",
   themeDark:"Темна тема", themeLight:"Світла тема",
   contentRu:"Назви тем і чеклісти поки лише російською.",
+  navNote:"конспект", nbEyebrow:"Особистий архів знань", nbTitle:"Конспект",
+  nbDesc:"Сюди потрапляє все, що ти написав сам, і весь розбір від Клода. Накопичується в міру проходження — можна перечитати за пів року.",
+  nbEmpty:"Порожньо. Склади першу тему — і вона з'явиться тут.",
+  nbCount:"записів", nbAvg:"середній бал", nbWords:"слів написано",
+  nbDownload:"Завантажити конспект", nbPrint:"Друк · зберегти в PDF",
+  nbPrintHint:"Кнопка друку відкриє системне вікно — там обери «Зберегти як PDF».",
+  nbFeedbackLabel:"Розбір від Клода — встав сюди, він потрапить у конспект",
+  nbFeedbackPh:"Встав відповідь Клода повністю: оцінку, що розкрито, що пропущено...",
+  nbAnswer:"Що я зрозумів", nbFeedback:"Розбір", nbTheses:"Ключові тези",
+  nbNoFeedback:"Розбір не збережено", nbGrade:"оцінка", nbSaved:"Конспект збережено",
+  nbGenerated:"Зібрано", nbOpenFail:"Браузер заблокував вікно друку — дозволь спливаючі вікна",
+  nbSubtitle:"Власні пояснення і розбори помилок",
+  examQ:"Питання, які ти розкопував — відповідай на ті, на які можеш",
+  examQHint:"Не на всі обов'язково відповідати. Клод окремо оцінить, наскільки ти розумієш тему загалом.",
   P:{
     intro:"Ти — суворий, але справедливий екзаменатор. Перевір, наскільки я зрозумів тему. Не хвали з ввічливості і не завищуй оцінку — мені потрібна чесна картина прогалин.",
     subject:"ПРЕДМЕТ", topic:"ТЕМА", attempt:"СПРОБА", attemptNote:"(попередні були невдалими)",
@@ -1708,6 +1769,8 @@ uk:{
     fErr:"ПОМИЛКИ: (що сказано невірно; якщо помилок немає — так і напиши)",
     fLearn:"ЩО ДОВЧИТИ: (2-3 конкретні пункти)",
     fQ:"ПИТАННЯ НА РОЗУМІННЯ: (одне питання, на яке я зможу відповісти, тільки якщо справді зрозумів тему)",
+    fWhole:"РОЗУМІННЯ ЗАГАЛОМ: (навіть якщо я розкрив не все — наскільки я розумію саму суть, логіку і механізм теми? Чи бачу зв'язки? Окрема оцінка за 10-бальною шкалою і два-три речення)",
+    partial:"Важливо: я шукав відповіді сам і міг розкрити не всі пункти. Не знижуй оцінку лише за те, що чогось немає — спершу подивись, чи розумію я механізм і логіку теми. Прогалина у фактах і нерозуміння суті — різні речі, і друге гірше.",
     tail:"Прохідний бал — 7 з 10. Став 7 і вище тільки якщо розкрито більшість ключових тез і немає грубих фактичних помилок. Переказ близько до тексту без розуміння механізму — не вище 6.",
     lang:"Відповідай українською мовою."
   }
@@ -1799,6 +1862,20 @@ en:{
   closeFirst:"Finish your current topic first", drumEmpty:"No available topics left",
   themeDark:"Dark theme", themeLight:"Light theme",
   contentRu:"Topic titles and checklists are still in Russian only.",
+  navNote:"notebook", nbEyebrow:"Your knowledge archive", nbTitle:"Notebook",
+  nbDesc:"Everything you wrote yourself plus every breakdown from Claude lands here. It builds up as you go — reread it in six months.",
+  nbEmpty:"Empty. Pass your first topic and it will show up here.",
+  nbCount:"entries", nbAvg:"average grade", nbWords:"words written",
+  nbDownload:"Download notebook", nbPrint:"Print · save as PDF",
+  nbPrintHint:"The print button opens the system dialog — choose «Save as PDF» there.",
+  nbFeedbackLabel:"Claude's breakdown — paste it here and it goes into the notebook",
+  nbFeedbackPh:"Paste Claude's full reply: the grade, what was covered, what was missed...",
+  nbAnswer:"What I understood", nbFeedback:"Breakdown", nbTheses:"Key points",
+  nbNoFeedback:"No breakdown saved", nbGrade:"grade", nbSaved:"Notebook saved",
+  nbGenerated:"Compiled", nbOpenFail:"The browser blocked the print window — allow pop-ups",
+  nbSubtitle:"Your own explanations and error breakdowns",
+  examQ:"The questions you were digging into — answer the ones you can",
+  examQHint:"You do not have to answer all of them. Claude will separately judge how well you grasp the topic overall.",
   P:{
     intro:"You are a strict but fair examiner. Check how well I understood the topic. Do not praise me out of politeness and do not inflate the grade — I need an honest picture of the gaps.",
     subject:"SUBJECT", topic:"TOPIC", attempt:"ATTEMPT", attemptNote:"(previous ones failed)",
@@ -1815,11 +1892,698 @@ en:{
     fErr:"ERRORS: (what is stated incorrectly; if none, say so)",
     fLearn:"WHAT TO RELEARN: (2-3 concrete items)",
     fQ:"COMPREHENSION QUESTION: (one question I can only answer if I truly understood the topic)",
+    fWhole:"OVERALL UNDERSTANDING: (even if I did not cover everything — how well do I grasp the essence, the logic and the mechanism? Do I see the connections? A separate score out of 10 and two or three sentences)",
+    partial:"Important: I researched this myself and may not have covered every point. Do not lower the grade merely for omissions — first check whether I understand the mechanism and the logic. A gap in facts and a failure to grasp the essence are different things, and the second is worse.",
     tail:"Pass mark is 7 out of 10. Give 7 or above only if most key points are covered and there are no gross factual errors. Reciting close to the source without grasping the mechanism — no higher than 6.",
     lang:"Answer in English."
   }
 }
 };
+
+/* Переводы названий тем. Ключ — id темы. Чего нет — показывается по-русски. */
+const TITLES = { uk:{}, en:{} };
+TITLES.uk = {
+"econ:inflation":"Інфляція: звідки вона береться",
+"econ:supply-demand":"Попит, пропозиція та еластичність",
+"econ:game-theory":"Теорія ігор і рівновага Неша",
+"econ:kahneman":"Дві системи мислення за Канеманом",
+"econ:compound":"Складний відсоток і вартість грошей у часі",
+"econ:lemons":"Асиметрія інформації та ринок лимонів",
+"econ:laffer":"Крива Лаффера",
+"econ:veblen":"Ефект Веблена і товари статусу",
+"econ:invisible-hand":"Невидима рука та її межі",
+"econ:commons":"Трагедія спільного і рішення Остром",
+"econ:externality":"Зовнішні ефекти і податок Пігу",
+"econ:public-goods":"Суспільні блага і проблема безбілетника",
+"econ:market-power":"Монополія, олігополія, монопсонія",
+"econ:price-discrim":"Цінова дискримінація трьох ступенів",
+"econ:nat-monopoly":"Природна монополія та її регулювання",
+"econ:phillips":"Крива Філліпса і стагфляція",
+"econ:unemployment":"Види безробіття і повна зайнятість",
+"econ:gdp":"ВВП: що він міряє і що втрачає",
+"econ:gini":"Нерівність: Джині, децилі та Кузнець",
+"econ:schools":"Кейнсіанство проти австрійської школи",
+"econ:multiplier":"Мультиплікатор державних видатків",
+"econ:liquidity-trap":"Ліквідна пастка",
+"econ:qe":"Кількісне пом'якшення",
+"econ:money-creation":"Як банки створюють гроші",
+"econ:bank-run":"Банківська паніка і страхування вкладів",
+"econ:emh":"Гіпотеза ефективного ринку",
+"econ:markowitz":"Портфельна теорія і диверсифікація",
+"econ:indexing":"Індексне інвестування проти активного",
+"econ:minsky":"Бульбашки активів і гіпотеза Мінскі",
+"econ:crisis2008":"Криза 2008: механіка катастрофи",
+"econ:moral-hazard":"Моральний ризик і too big to fail",
+"econ:principal-agent":"Проблема принципала й агента",
+"econ:coase-firm":"Чому існують фірми: Коуз",
+"econ:coase-theorem":"Теорема Коуза про права власності",
+"econ:comparative-adv":"Порівняльна перевага Рікардо",
+"econ:protectionism":"Протекціонізм: аргументи сторін",
+"econ:exchange-rate":"Валютний курс і паритет купівельної спроможності",
+"econ:dutch-disease":"Голландська хвороба і ресурсне прокляття",
+"econ:institutions":"Інститути як причина багатства народів",
+"econ:middle-income":"Пастка середнього доходу",
+"econ:scale":"Ефект масштабу і крива досвіду",
+"econ:network-effects":"Мережеві ефекти й економіка платформ",
+"econ:attention":"Економіка уваги",
+"econ:pricing":"Три підходи до ціноутворення",
+"econ:sunk-cost":"Незворотні витрати",
+"econ:opportunity-cost":"Альтернативна вартість",
+"econ:marginal-utility":"Спадна гранична корисність",
+"econ:giffen":"Товари Гіффена і нижчого порядку",
+"econ:crypto":"Криптовалюти: проблема подвійного витрачання",
+"econ:deflation":"Дефляційна спіраль",
+"econ:public-debt":"Державний борг: коли він небезпечний",
+"econ:pensions":"Пенсійні системи: солідарна і накопичувальна",
+"econ:ubi":"Безумовний базовий дохід: аргументи сторін",
+"econ:currency-area":"Оптимальні валютні зони і єврозона",
+"econ:disposition":"Поведінкові фінанси: ефект диспозиції",
+
+"mkt:positioning":"Позиціонування: битва за місце в голові",
+"mkt:jtbd":"Jobs To Be Done: люди наймають продукт",
+"mkt:unit-econ":"Юніт-економіка: CAC, LTV і точка окупності",
+"mkt:porter":"П'ять сил Портера",
+"mkt:innovator":"Дилема інноватора",
+"mkt:goodhart":"Закон Гудгарта і пастки метрик",
+"mkt:4p":"Комплекс маркетингу 4P і 7P",
+"mkt:stp":"Сегментація, таргетинг, позиціонування",
+"mkt:funnel":"Воронка продажів і шлях клієнта",
+"mkt:aarrr":"Метрики AARRR для продукту",
+"mkt:pmf":"Product-Market Fit: як зрозуміти що він є",
+"mkt:diffusion":"Дифузія інновацій і прірва Мура",
+"mkt:blue-ocean":"Стратегія блакитного океану",
+"mkt:brand-equity":"Капітал бренду",
+"mkt:brand-arch":"Архітектура бренду",
+"mkt:nps":"NPS і метрики лояльності",
+"mkt:segmentation-rfm":"RFM-аналіз і робота з базою",
+"mkt:seo-basics":"Як влаштований пошук і SEO",
+"mkt:content-mkt":"Контент-маркетинг і його економіка",
+"mkt:influencer":"Інфлюенсер-маркетинг",
+"mkt:ab-testing":"A/B-тести: як не обдурити себе",
+"mkt:cognitive-mkt":"Психологічні прийоми в продажах",
+"mkt:okr":"OKR і постановка цілей",
+"mkt:smart":"SMART і межі застосовності",
+"mkt:motivation":"Теорії мотивації: Маслоу, Герцберг, Десі",
+"mkt:leadership":"Стилі лідерства і ситуаційна модель",
+"mkt:delegation":"Делегування і його провали",
+"mkt:team-stages":"Стадії розвитку команди за Такманом",
+"mkt:psych-safety":"Психологічна безпека в командах",
+"mkt:conflict":"Управління конфліктом",
+"mkt:negotiation":"Переговори: BATNA і створення цінності",
+"mkt:decision":"Ухвалення рішень в умовах невизначеності",
+"mkt:lean":"Ощадливий стартап і цикл навчання",
+"mkt:agile":"Agile і що від нього залишилось",
+"mkt:kpi-systems":"Системи показників і збалансована карта",
+"mkt:change":"Управління змінами",
+"mkt:culture":"Організаційна культура",
+"mkt:hiring":"Найм: сигнали, тести й упередженість",
+"mkt:peter":"Принцип Пітера і кар'єрні пастки",
+"mkt:parkinson":"Закон Паркінсона і ціна часу",
+"mkt:brooks":"Закон Брукса і міфічний людино-місяць",
+"mkt:conway":"Закон Конвея",
+"mkt:bcg":"Матриця BCG і портфель продуктів",
+"mkt:ansoff":"Матриця Ансоффа: напрями зростання",
+"mkt:swot":"SWOT і чому він зазвичай марний",
+"mkt:vrio":"Ресурсний підхід і модель VRIO",
+"mkt:moat":"Економічні рови: джерела стійкої переваги",
+"mkt:pricing-psych":"Моделі монетизації",
+"mkt:crm-retention":"Утримання клієнтів і робота з відтоком",
+"mkt:crisis-comm":"Кризові комунікації",
+"mkt:okr-vs-mbo":"Управління за цілями та його еволюція",
+
+"hist:westphalia":"Вестфальська система і суверенітет",
+"hist:thucydides":"Пастка Фукідіда",
+"hist:industrial":"Чому промислова революція почалася в Британії",
+"hist:bretton":"Бреттон-Вудс і долар як світова валюта",
+"hist:deterrence":"Логіка ядерного стримування",
+"hist:heartland":"Гартленд: геополітика Маккіндера",
+"hist:neolithic":"Неолітична революція",
+"hist:axial":"Осьовий час Ясперса",
+"hist:rome-fall":"Падіння Західної Римської імперії",
+"hist:feudalism":"Феодалізм: система чи конструкт",
+"hist:black-death":"Чорна смерть та її наслідки",
+"hist:discoveries":"Великі географічні відкриття",
+"hist:reformation":"Реформація та її наслідки",
+"hist:absolutism":"Абсолютизм і народження сучасної держави",
+"hist:enlightenment":"Просвітництво: ідеї і спадок",
+"hist:french-rev":"Французька революція",
+"hist:napoleon":"Наполеонівські війни і Віденська система",
+"hist:nationalism":"Націоналізм: звідки взялися нації",
+"hist:imperialism":"Імперіалізм XIX століття і поділ світу",
+"hist:ww1-causes":"Причини Першої світової війни",
+"hist:ww1-consequences":"Підсумки Першої світової і Версаль",
+"hist:russian-rev":"Російська революція 1917 року",
+"hist:great-depression":"Велика депресія",
+"hist:totalitarism":"Тоталітаризм як феномен XX століття",
+"hist:ww2-causes":"Шлях до Другої світової війни",
+"hist:holocaust":"Голокост: механізм та історіографія",
+"hist:cold-war":"Холодна війна: етапи і логіка",
+"hist:cuban-crisis":"Карибська криза",
+"hist:decolonization":"Деколонізація та її наслідки",
+"hist:china-reform":"Китайські реформи Ден Сяопіна",
+"hist:ussr-collapse":"Розпад СРСР: причини і механіка",
+"hist:globalization":"Глобалізація: хвилі та відкат",
+"hist:eu":"Європейська інтеграція",
+"hist:un":"ООН: устрій і межі можливостей",
+"hist:human-rights":"Права людини: ідея та інститути",
+"hist:middle-east":"Близький Схід: формування сучасної карти",
+"hist:israel-palestine":"Арабо-ізраїльський конфлікт: вузли",
+"hist:terrorism":"Тероризм як політична стратегія",
+"hist:soft-power":"М'яка сила та інструменти впливу",
+"hist:balance-power":"Баланс сил і школи міжнародних відносин",
+"hist:hegemony":"Теорія гегемоністської стабільності",
+"hist:demographic-transition":"Демографічний перехід",
+"hist:urbanization":"Урбанізація і зростання міст",
+"hist:migration":"Міграція: причини та ефекти",
+"hist:climate-geopolitics":"Клімат як геополітичний фактор",
+"hist:tech-history":"Технологічні уклади і довгі хвилі",
+"hist:printing":"Друкарський верстат та інформаційні революції",
+"hist:pandemics":"Пандемії в історії",
+"hist:revolutions-theory":"Теорії революцій",
+"hist:authoritarian":"Сучасний авторитаризм",
+"hist:war-economics":"Економіка війни",
+"hist:space-race":"Космічні перегони та їх спадок",
+"hist:internet-history":"Як з'явився інтернет",
+"hist:historiography":"Як працює історична наука",
+"hist:counterfactual":"Контрфактична історія",
+"hist:memory-politics":"Політика пам'яті",
+
+"psy:dichotomy":"Дихотомія контролю: ядро стоїцизму",
+"psy:dissonance":"Когнітивний дисонанс",
+"psy:ethics":"Утилітаризм проти деонтології",
+"psy:anchoring":"Якоріння та евристика доступності",
+"psy:attachment":"Теорія прив'язаності",
+"psy:existentialism":"Екзистенціалізм: свобода як тягар",
+"psy:dunning":"Ефект Даннінга-Крюгера",
+"psy:confirmation-bias":"Упередженість підтвердження",
+"psy:fundamental-error":"Фундаментальна помилка атрибуції",
+"psy:milgram":"Експеримент Мілгрема і підкорення авторитету",
+"psy:asch":"Конформізм: експерименти Аша",
+"psy:groupthink":"Групове мислення",
+"psy:bystander":"Ефект свідка і дифузія відповідальності",
+"psy:stanford":"Стенфордський тюремний експеримент і його розвінчання",
+"psy:replication":"Криза відтворюваності в науці",
+"psy:placebo":"Ефект плацебо і ноцебо",
+"psy:memory":"Пам'ять як реконструкція",
+"psy:learning":"Як працює ефективне навчання",
+"psy:deliberate-practice":"Усвідомлена практика і природа майстерності",
+"psy:flow":"Потік і оптимальне переживання",
+"psy:grit":"Наполегливість і установка на зростання",
+"psy:habits":"Як формуються звички",
+"psy:willpower":"Сила волі та виснаження его",
+"psy:procrastination":"Прокрастинація як емоційна регуляція",
+"psy:burnout":"Вигорання: механізм і ознаки",
+"psy:stress":"Стрес: гострий, хронічний і переоцінка",
+"psy:sleep":"Сон і когнітивні функції",
+"psy:cbt":"Когнітивно-поведінкова терапія",
+"psy:depression":"Депресія: що це насправді",
+"psy:anxiety":"Тривога та її механіка",
+"psy:trauma":"Травма і посттравматичне зростання",
+"psy:personality":"Велика п'ятірка і типології особистості",
+"psy:iq":"Інтелект: що вимірює IQ",
+"psy:nature-nurture":"Природа проти виховання",
+"psy:free-will":"Свобода волі: суперечка філософії і нейронауки",
+"psy:consciousness":"Важка проблема свідомості",
+"psy:identity":"Особиста ідентичність і парадокс корабля",
+"psy:trolley":"Проблема вагонетки і моральна інтуїція",
+"psy:veil":"Ролз і завіса незнання",
+"psy:justice":"Теорії справедливості: рівність, заслуга, потреба",
+"psy:skepticism":"Скептицизм і проблема знання",
+"psy:science-phil":"Філософія науки: що робить знання науковим",
+"psy:language":"Мова і мислення: гіпотеза Сепіра-Ворфа",
+"psy:emotions":"Що таке емоції",
+"psy:empathy":"Емпатія: співпереживання проти співчуття",
+"psy:loneliness":"Самотність і соціальні зв'язки",
+"psy:happiness":"Психологія щастя й адаптації",
+"psy:meaning":"Сенс життя: підходи",
+"psy:death":"Ставлення до смерті і теорія управління жахом",
+"psy:stoicism-vs":"Стоїцизм, епікурейство і кініки",
+"psy:buddhism":"Буддійська психологія: анатта і страждання",
+"psy:attention":"Увага та її обмеження",
+"psy:heuristics":"Евристики: репрезентативність та інші",
+"psy:nudge":"Підштовхування й архітектура вибору",
+"psy:self-esteem":"Самооцінка і самоспівчуття",
+"psy:persuasion":"Переконання й опір йому"
+};
+
+TITLES.en = {
+"econ:inflation":"Inflation: where it comes from",
+"econ:supply-demand":"Supply, demand and elasticity",
+"econ:game-theory":"Game theory and the Nash equilibrium",
+"econ:kahneman":"Kahneman's two systems of thinking",
+"econ:compound":"Compound interest and the time value of money",
+"econ:lemons":"Information asymmetry and the market for lemons",
+"econ:laffer":"The Laffer curve",
+"econ:veblen":"The Veblen effect and status goods",
+"econ:invisible-hand":"The invisible hand and its limits",
+"econ:commons":"Tragedy of the commons and Ostrom's answer",
+"econ:externality":"Externalities and the Pigouvian tax",
+"econ:public-goods":"Public goods and the free rider problem",
+"econ:market-power":"Monopoly, oligopoly, monopsony",
+"econ:price-discrim":"The three degrees of price discrimination",
+"econ:nat-monopoly":"Natural monopoly and how it is regulated",
+"econ:phillips":"The Phillips curve and stagflation",
+"econ:unemployment":"Types of unemployment and full employment",
+"econ:gdp":"GDP: what it measures and what it misses",
+"econ:gini":"Inequality: Gini, deciles and Kuznets",
+"econ:schools":"Keynesianism versus the Austrian school",
+"econ:multiplier":"The government spending multiplier",
+"econ:liquidity-trap":"The liquidity trap",
+"econ:qe":"Quantitative easing",
+"econ:money-creation":"How banks create money",
+"econ:bank-run":"Bank runs and deposit insurance",
+"econ:emh":"The efficient market hypothesis",
+"econ:markowitz":"Portfolio theory and diversification",
+"econ:indexing":"Index investing versus active management",
+"econ:minsky":"Asset bubbles and Minsky's hypothesis",
+"econ:crisis2008":"The 2008 crisis: mechanics of a collapse",
+"econ:moral-hazard":"Moral hazard and too big to fail",
+"econ:principal-agent":"The principal-agent problem",
+"econ:coase-firm":"Why firms exist: Coase",
+"econ:coase-theorem":"The Coase theorem and property rights",
+"econ:comparative-adv":"Ricardo's comparative advantage",
+"econ:protectionism":"Protectionism: the case on both sides",
+"econ:exchange-rate":"Exchange rates and purchasing power parity",
+"econ:dutch-disease":"Dutch disease and the resource curse",
+"econ:institutions":"Institutions as the cause of national wealth",
+"econ:middle-income":"The middle income trap",
+"econ:scale":"Economies of scale and the experience curve",
+"econ:network-effects":"Network effects and the platform economy",
+"econ:attention":"The attention economy",
+"econ:pricing":"Three approaches to pricing",
+"econ:sunk-cost":"Sunk costs",
+"econ:opportunity-cost":"Opportunity cost",
+"econ:marginal-utility":"Diminishing marginal utility",
+"econ:giffen":"Giffen goods and inferior goods",
+"econ:crypto":"Cryptocurrency: the double spending problem",
+"econ:deflation":"The deflationary spiral",
+"econ:public-debt":"Public debt: when it becomes dangerous",
+"econ:pensions":"Pension systems: pay-as-you-go versus funded",
+"econ:ubi":"Universal basic income: the case on both sides",
+"econ:currency-area":"Optimum currency areas and the eurozone",
+"econ:disposition":"Behavioural finance: the disposition effect",
+
+"mkt:positioning":"Positioning: the battle for your mind",
+"mkt:jtbd":"Jobs To Be Done: people hire products",
+"mkt:unit-econ":"Unit economics: CAC, LTV and payback",
+"mkt:porter":"Porter's five forces",
+"mkt:innovator":"The innovator's dilemma",
+"mkt:goodhart":"Goodhart's law and metric traps",
+"mkt:4p":"The marketing mix: 4P and 7P",
+"mkt:stp":"Segmentation, targeting, positioning",
+"mkt:funnel":"The sales funnel and the customer journey",
+"mkt:aarrr":"AARRR product metrics",
+"mkt:pmf":"Product-market fit: how to tell you have it",
+"mkt:diffusion":"Diffusion of innovations and Moore's chasm",
+"mkt:blue-ocean":"Blue ocean strategy",
+"mkt:brand-equity":"Brand equity",
+"mkt:brand-arch":"Brand architecture",
+"mkt:nps":"NPS and loyalty metrics",
+"mkt:segmentation-rfm":"RFM analysis and working your database",
+"mkt:seo-basics":"How search works and SEO",
+"mkt:content-mkt":"Content marketing and its economics",
+"mkt:influencer":"Influencer marketing",
+"mkt:ab-testing":"A/B testing: how not to fool yourself",
+"mkt:cognitive-mkt":"Psychological tactics in selling",
+"mkt:okr":"OKRs and goal setting",
+"mkt:smart":"SMART goals and where they fail",
+"mkt:motivation":"Theories of motivation: Maslow, Herzberg, Deci",
+"mkt:leadership":"Leadership styles and situational leadership",
+"mkt:delegation":"Delegation and why it fails",
+"mkt:team-stages":"Tuckman's stages of team development",
+"mkt:psych-safety":"Psychological safety in teams",
+"mkt:conflict":"Managing conflict",
+"mkt:negotiation":"Negotiation: BATNA and creating value",
+"mkt:decision":"Decision making under uncertainty",
+"mkt:lean":"The lean startup and the learning loop",
+"mkt:agile":"Agile and what is left of it",
+"mkt:kpi-systems":"Scorecards and the balanced scorecard",
+"mkt:change":"Change management",
+"mkt:culture":"Organisational culture",
+"mkt:hiring":"Hiring: signals, tests and bias",
+"mkt:peter":"The Peter principle and career traps",
+"mkt:parkinson":"Parkinson's law and the price of time",
+"mkt:brooks":"Brooks's law and the mythical man-month",
+"mkt:conway":"Conway's law",
+"mkt:bcg":"The BCG matrix and product portfolios",
+"mkt:ansoff":"The Ansoff matrix: directions for growth",
+"mkt:swot":"SWOT and why it is usually useless",
+"mkt:vrio":"The resource-based view and VRIO",
+"mkt:moat":"Economic moats: sources of durable advantage",
+"mkt:pricing-psych":"Monetisation models",
+"mkt:crm-retention":"Retention and working with churn",
+"mkt:crisis-comm":"Crisis communications",
+"mkt:okr-vs-mbo":"Management by objectives and its evolution",
+
+"hist:westphalia":"The Westphalian system and sovereignty",
+"hist:thucydides":"The Thucydides trap",
+"hist:industrial":"Why the industrial revolution began in Britain",
+"hist:bretton":"Bretton Woods and the dollar as world currency",
+"hist:deterrence":"The logic of nuclear deterrence",
+"hist:heartland":"The Heartland: Mackinder's geopolitics",
+"hist:neolithic":"The Neolithic revolution",
+"hist:axial":"Jaspers and the Axial Age",
+"hist:rome-fall":"The fall of the Western Roman Empire",
+"hist:feudalism":"Feudalism: system or construct",
+"hist:black-death":"The Black Death and its consequences",
+"hist:discoveries":"The Age of Discovery",
+"hist:reformation":"The Reformation and its consequences",
+"hist:absolutism":"Absolutism and the birth of the modern state",
+"hist:enlightenment":"The Enlightenment: ideas and legacy",
+"hist:french-rev":"The French Revolution",
+"hist:napoleon":"The Napoleonic wars and the Vienna system",
+"hist:nationalism":"Nationalism: where nations came from",
+"hist:imperialism":"Nineteenth century imperialism and the scramble",
+"hist:ww1-causes":"Causes of the First World War",
+"hist:ww1-consequences":"Aftermath of the First World War and Versailles",
+"hist:russian-rev":"The Russian Revolution of 1917",
+"hist:great-depression":"The Great Depression",
+"hist:totalitarism":"Totalitarianism as a twentieth century phenomenon",
+"hist:ww2-causes":"The road to the Second World War",
+"hist:holocaust":"The Holocaust: mechanism and historiography",
+"hist:cold-war":"The Cold War: stages and logic",
+"hist:cuban-crisis":"The Cuban missile crisis",
+"hist:decolonization":"Decolonisation and its consequences",
+"hist:china-reform":"Deng Xiaoping's Chinese reforms",
+"hist:ussr-collapse":"The collapse of the USSR: causes and mechanics",
+"hist:globalization":"Globalisation: waves and retreat",
+"hist:eu":"European integration",
+"hist:un":"The UN: structure and limits",
+"hist:human-rights":"Human rights: the idea and the institutions",
+"hist:middle-east":"The Middle East: how the modern map was drawn",
+"hist:israel-palestine":"The Arab-Israeli conflict: the knots",
+"hist:terrorism":"Terrorism as political strategy",
+"hist:soft-power":"Soft power and instruments of influence",
+"hist:balance-power":"Balance of power and schools of international relations",
+"hist:hegemony":"Hegemonic stability theory",
+"hist:demographic-transition":"The demographic transition",
+"hist:urbanization":"Urbanisation and the growth of cities",
+"hist:migration":"Migration: causes and effects",
+"hist:climate-geopolitics":"Climate as a geopolitical factor",
+"hist:tech-history":"Technological paradigms and long waves",
+"hist:printing":"The printing press and information revolutions",
+"hist:pandemics":"Pandemics in history",
+"hist:revolutions-theory":"Theories of revolution",
+"hist:authoritarian":"Modern authoritarianism",
+"hist:war-economics":"The economics of war",
+"hist:space-race":"The space race and its legacy",
+"hist:internet-history":"How the internet came about",
+"hist:historiography":"How historical scholarship works",
+"hist:counterfactual":"Counterfactual history",
+"hist:memory-politics":"The politics of memory",
+
+"psy:dichotomy":"The dichotomy of control: the core of Stoicism",
+"psy:dissonance":"Cognitive dissonance",
+"psy:ethics":"Utilitarianism versus deontology",
+"psy:anchoring":"Anchoring and the availability heuristic",
+"psy:attachment":"Attachment theory",
+"psy:existentialism":"Existentialism: freedom as a burden",
+"psy:dunning":"The Dunning-Kruger effect",
+"psy:confirmation-bias":"Confirmation bias",
+"psy:fundamental-error":"The fundamental attribution error",
+"psy:milgram":"The Milgram experiment and obedience to authority",
+"psy:asch":"Conformity: the Asch experiments",
+"psy:groupthink":"Groupthink",
+"psy:bystander":"The bystander effect and diffusion of responsibility",
+"psy:stanford":"The Stanford prison experiment and its debunking",
+"psy:replication":"The replication crisis in science",
+"psy:placebo":"The placebo and nocebo effects",
+"psy:memory":"Memory as reconstruction",
+"psy:learning":"How effective learning actually works",
+"psy:deliberate-practice":"Deliberate practice and the nature of mastery",
+"psy:flow":"Flow and optimal experience",
+"psy:grit":"Grit and the growth mindset",
+"psy:habits":"How habits are formed",
+"psy:willpower":"Willpower and ego depletion",
+"psy:procrastination":"Procrastination as emotional regulation",
+"psy:burnout":"Burnout: mechanism and warning signs",
+"psy:stress":"Stress: acute, chronic and reappraisal",
+"psy:sleep":"Sleep and cognitive function",
+"psy:cbt":"Cognitive behavioural therapy",
+"psy:depression":"Depression: what it actually is",
+"psy:anxiety":"Anxiety and how it works",
+"psy:trauma":"Trauma and post-traumatic growth",
+"psy:personality":"The Big Five and personality typologies",
+"psy:iq":"Intelligence: what IQ measures",
+"psy:nature-nurture":"Nature versus nurture",
+"psy:free-will":"Free will: philosophy against neuroscience",
+"psy:consciousness":"The hard problem of consciousness",
+"psy:identity":"Personal identity and the ship of Theseus",
+"psy:trolley":"The trolley problem and moral intuition",
+"psy:veil":"Rawls and the veil of ignorance",
+"psy:justice":"Theories of justice: equality, desert, need",
+"psy:skepticism":"Scepticism and the problem of knowledge",
+"psy:science-phil":"Philosophy of science: what makes knowledge scientific",
+"psy:language":"Language and thought: the Sapir-Whorf hypothesis",
+"psy:emotions":"What emotions are",
+"psy:empathy":"Empathy: feeling with versus compassion",
+"psy:loneliness":"Loneliness and social connection",
+"psy:happiness":"The psychology of happiness and adaptation",
+"psy:meaning":"The meaning of life: the main approaches",
+"psy:death":"Attitudes to death and terror management theory",
+"psy:stoicism-vs":"Stoics, Epicureans and Cynics",
+"psy:buddhism":"Buddhist psychology: anatta and suffering",
+"psy:attention":"Attention and its limits",
+"psy:heuristics":"Heuristics: representativeness and others",
+"psy:nudge":"Nudging and choice architecture",
+"psy:self-esteem":"Self-esteem and self-compassion",
+"psy:persuasion":"Persuasion and resistance to it"
+};
+
+function TT(t){
+  const m = TITLES[S.lang];
+  return (m && m[t.key]) ? m[t.key] : t.title;
+}
+/* Переводы чеклистов. Чего нет — показывается по-русски. */
+const THESES = { uk:{}, en:{} };
+Object.assign(THESES.uk, {
+"mkt:positioning":["Позиціонування змінює не продукт, а місце у свідомості споживача","Людина тримає в пам'яті 3-5 брендів на категорію — задача зайняти клітинку і слово","Volvo — безпека, BMW — водіння: один бренд володіє одним словом","Закон першості: простіше стати першим у новій вузькій категорії, ніж другим у зайнятій","Позиціонування проти лідера: Avis 'ми номер два', 7Up 'не-кола'","Розширення лінійки розмиває бренд: що значить усе, не значить нічого","Перевірка: конкурент не має могти сказати про себе те саме; має бути сегмент, від якого ти відмовився"],
+"mkt:jtbd":["Люди наймають продукт на виконання роботи, а не купують його властивості","Кейс із коктейлем: робота — зайняти руку і не зголодніти в нудній дорозі","Конкуренти визначаються за роботою, а не за товарною категорією (банан і бублик проти коктейлю)","Три виміри роботи: функціональний, емоційний, соціальний","Чотири сили: push і pull штовхають до зміни, звичка і тривога утримують","Інтерв'ю будується на історіях про конкретну останню покупку, а не на думках про функції"],
+"mkt:unit-econ":["Юніт-економіка показує, чи заробляєш ти на одному клієнті","CAC = усі витрати на маркетинг і продажі / кількість нових клієнтів","LTV рахується за маржею: чек × маржинальність × частота × строк життя","LTV/CAC від 3 — норма; значно вище означає, що ти недоінвестуєш у зростання","Строк окупності CAC важливіший за відношення: компанії вмирають від касового розриву","Зниження відтоку вдвічі подвоює LTV — зазвичай дешевше, ніж покращувати рекламу","LTV системно завищують; CAC зростає при масштабуванні"],
+"mkt:porter":["Прибутковість визначається структурою галузі, а не лише якістю управління","Загроза нових гравців залежить від бар'єрів входу: капітал, патенти, масштаб, мережевий ефект","Влада постачальників забирає маржу вгору по ланцюгу (ASML, Nvidia)","Влада покупців зростає з їхнім розміром і легкістю зміни постачальника","Замінники — інший спосіб розв'язати задачу; саме вони частіше вбивають галузі","Інтенсивність конкуренції: повільне зростання + високі бар'єри виходу = цінова війна (авіація)","Критика: модель статична, ігнорує комплементи і платформенні екосистеми"],
+"mkt:innovator":["Підтримуючі інновації покращують звичні параметри — там перемагає лідер","Підривні гірші за головними параметрами, але дешевші і простіші, приходять із нижнього сегмента","Лідер відмовляється йти туди раціонально: низька маржа, малий ринок, клієнти просять інше","Клієнтоорієнтованість — частина пастки: найкращі клієнти відводять від майбутнього","Надлишкова якість: технології зростають швидше за потреби, конкуренція йде в ціну і зручність","Приклади: Kodak, Nokia, Blockbuster, мейнфрейми проти ПК","Рішення — окрема структура з окремими метриками і готовність канібалізувати себе","Критика: теорія краще пояснює минуле, ніж передбачає"],
+"mkt:goodhart":["Коли міра стає ціллю, вона перестає бути хорошою мірою","Люди оптимізують метрику, а не те, що вона вимірювала — зазвичай без злого умислу","Приклади: план у тоннах, премія за хвости щурів, час розмови в підтримці, рядки коду","Закон Кемпбелла і кобра-ефект — ті самі явища в інших формулюваннях","Проблема структурна: метрика стискає реальність, оптимізація йде через втрачену частину","Лікування: набір різноспрямованих метрик із противагами","Розділяти вимірювання і винагороду; заздалегідь питати, як показник можна накрутити"],
+"mkt:4p":["Продукт, ціна, місце, просування як чотири важелі","Розширення до 7P для послуг: люди, процеси, фізичне оточення","Елементи взаємозалежні: зміна одного ламає решту","Критика: модель дивиться від продавця, а не від клієнта","Альтернатива 4C Лотерборна: цінність, витрати клієнта, зручність, комунікація"],
+"mkt:stp":["Три кроки: розбити ринок, обрати сегмент, зайняти місце у свідомості","Основи сегментації: демографія, географія, поведінка, психографія, робота клієнта","Ознаки хорошого сегмента: вимірність, доступність, розмір, однорідність","Помилка звертання до всіх одразу призводить до звертання ні до кого","Зв'язок із позиціонуванням і вибором того, від кого відмовляєшся"],
+"mkt:funnel":["Класична AIDA: увага, інтерес, бажання, дія","Сучасний вигляд: обізнаність, інтерес, розгляд, покупка, утримання, рекомендація","Конверсія кожного кроку і пошук вузького місця","Критика лінійної воронки: реальний шлях петляє і повертається","Модель маховика замість воронки: клієнт як джерело зростання","Атрибуція: кому приписати заслугу продажу за багатьох дотиків"],
+"mkt:aarrr":["П'ять стадій: залучення, активація, утримання, дохід, рекомендація","Активація як момент першої отриманої цінності","Утримання — головна метрика, все інше без неї безглузде","Когортний аналіз і крива утримання, що виходить на плато","Метрика полярної зірки і небезпека оптимізації не того показника","Зв'язок моделі зі стадією зрілості продукту"],
+"mkt:pmf":["Визначення Андріссена: ринок тягне продукт із рук","Тест Шона Елліса: частка тих, хто сильно засмутиться без продукту, вища за 40%","Ознаки відсутності: зростання лише на рекламі, високий відтік, млява активність","Крива утримання, що виходить на плато, як об'єктивний індикатор","Небезпека масштабування до досягнення відповідності","Відповідність не назавжди: ринок змінюється, і її можна втратити"],
+"mkt:diffusion":["П'ять груп за Роджерсом: новатори, ранні послідовники, рання більшість, пізня, відсталі","Крива прийняття і її нормальний розподіл","Прірва Мура між ранніми послідовниками і ранньою більшістю","Чому групи купують з різних причин: ентузіасти заради нового, більшість заради надійності","Стратегія плацдарму: захопити вузьку нішу цілком, а не розмазатися","Роль референсів і соціального доказу при переході через прірву"],
+"mkt:blue-ocean":["Червоний океан конкуренції проти блакитного океану нового попиту","Відмова від компромісу між цінністю і витратами","Решітка чотирьох дій: скасувати, знизити, підвищити, створити","Канва стратегії як інструмент візуалізації відмінності","Приклади: Cirque du Soleil, Nintendo Wii, Southwest","Критика: приклади підібрані заднім числом, стійкість блакитного океану коротка"],
+"mkt:brand-equity":["Бренд як надбавка до ціни, яку платять за те саме","Модель Аакера: обізнаність, асоціації, сприйнята якість, лояльність","Піраміда Келлера: від упізнавання до резонансу","Бренд знижує витрати вибору і ризик для покупця","Як вимірюють: премія до ціни, еластичність, частка повторних покупок","Небезпека розриву між обіцянкою бренду і реальним досвідом"],
+"mkt:brand-arch":["Дім брендів проти брендованого дому","Монолітна, підтримуюча і незалежна моделі","Плюси єдиного бренду: перенесення довіри, економія на просуванні","Плюси окремих брендів: ізоляція ризиків і точне позиціонування","Приклади: Procter & Gamble проти Apple і Virgin","Коли субренд виправданий, а коли розмиває основний"],
+"mkt:nps":["Питання про готовність рекомендувати за шкалою від 0 до 10","Промоутери, нейтрали, критики і формула розрахунку","Перевага: простота і зіставність між компаніями","Критика: втрата інформації, культурні відмінності в оцінках, слабкий зв'язок із виручкою","Небезпека прив'язки премій до NPS і виродження у випрошування оцінок","Доповнюючі метрики: CSAT, CES, реальна повторна поведінка"],
+"mkt:segmentation-rfm":["Три виміри: давність, частота і сума покупок","Сегменти: чемпіони, лояльні, сплячі, ті, хто йде, втрачені","Різний сценарій комунікації під кожен сегмент","Принцип Парето в клієнтській базі: меншість дає більшість виручки","Реактивація сплячих дешевша за залучення нових","Обмеження: модель дивиться назад і погано передбачає зміну поведінки"],
+"mkt:seo-basics":["Три етапи: сканування, індексація, ранжування","Пошуковий інтент: інформаційний, навігаційний, комерційний, транзакційний","Технічні фактори, зміст і посилальна вага","Довгий хвіст запитів і чому він часто вигідніший за високочастотні","E-E-A-T і роль експертності для чутливих тем","Вплив генеративних відповідей на трафік сайтів"],
+"mkt:content-mkt":["Продаж через користь замість прямої реклами","Накопичувальний ефект: контент працює роками, реклама закінчується з бюджетом","Довгий горизонт окупності як головний бар'єр","Воронка контенту: обізнаючий, розглядаючий, вирішальний","Проблема вимірювання внеску в продажі і роль атрибуції","Знецінення масового контенту в епоху генеративних моделей"],
+"mkt:influencer":["Перенесення довіри від лідера думок до бренду","Мікро- і наноінфлюенсери: менший обхват, вища залученість і довіра","Метрики: обхват, залученість, вартість контакту, реальні продажі","Накрутки і способи перевірки аудиторії","Ризик репутаційного перенесення в обидва боки","Вимога розкривати рекламу і чому це впливає на ефективність"],
+"mkt:ab-testing":["Випадковий розподіл як основа причинного висновку","Статистична значущість, потужність і необхідний розмір вибірки","Підглядання в результати до строку як джерело хибних знахідок","Проблема множинних порівнянь і поправки","Локальний максимум: серія дрібних тестів не дає прориву","Зовнішня валідність: сезонність, новизна, відмінність сегментів"],
+"mkt:cognitive-mkt":["Взаємність, дефіцит, авторитет, послідовність, симпатія, соціальний доказ за Чалдіні","Ефект принади: третій варіант, що робить потрібний привабливішим","Обмеження вибору: парадокс вибору Шварца","Ефект правої цифри і ціни з дев'яткою","Межа між впливом і маніпуляцією","Довгострокова ціна темних патернів для довіри до бренду"],
+"mkt:okr":["Ціль якісна і надихаюча, ключові результати вимірювані","Відмінність від KPI: OKR про зміну, KPI про стан здоров'я","Амбітні цілі і норма досягнення близько 70%","Каскадування проти вирівнювання знизу вгору","Типові помилки: перетворення на список задач і прив'язка до премій","Ритм: квартальний цикл, щотижнева звірка, ретроспектива"],
+"mkt:smart":["Конкретність, вимірність, досяжність, релевантність, строк","Сила формату: перетворює намір на перевірюване зобов'язання","Слабкість: підштовхує до безпечних і легко вимірюваних цілей","Конфлікт досяжності й амбітності","Де формат не працює: дослідження, творчість, ранні стадії продукту","Доповнення цілями-намірами і правилом реалізації якщо-то"],
+"mkt:motivation":["Піраміда Маслоу і її слабка емпірична база","Двофакторна теорія Герцберга: гігієнічні фактори і мотиватори","Усунення невдоволення не створює задоволеності","Теорія самодетермінації Десі і Райана: автономія, компетентність, пов'язаність","Ефект витіснення: зовнішня нагорода вбиває внутрішню мотивацію","Коли гроші мотивують, а коли перестають працювати"],
+"mkt:leadership":["Класифікація Левіна: авторитарний, демократичний, потуральний","Ситуаційне лідерство Херсі і Бланшара: стиль залежить від зрілості співробітника","Трансформаційне проти транзакційного лідерства","Лідерство-служіння та його обмеження","Міф про вроджені якості лідера і що показують дослідження","Різниця між менеджментом і лідерством за Коттером"],
+"mkt:delegation":["Передача задачі разом із повноваженнями і відповідальністю за результат","Рівні делегування від виконання за інструкцією до повної автономії","Чому керівники не делегують: страх якості, ілюзія швидкості, потреба в контролі","Зворотне делегування: як задача повертається до керівника","Правило: делегувати результат, а не спосіб виконання","Зв'язок із масштабованістю команди і вигоранням керівника"],
+"mkt:team-stages":["Формування, шторм, нормування, робота, розставання","Конфлікт на стадії шторму нормальний і необхідний","Задача керівника змінюється на кожній стадії","Відкат назад при зміні складу або цілі","Психологічна безпека як умова проходження шторму","Критика лінійності моделі"],
+"mkt:psych-safety":["Визначення Едмондсон: можна ризикувати і помилятися без страху приниження","Проєкт Aristotle у Google: головний предиктор ефективності команди","Відмінність від м'якості й відсутності вимогливості","Ознаки відсутності: мовчання на зустрічах, приховування помилок, відсутність питань","Як будується: реакція керівника на погані новини і на помилки","Поєднання високої безпеки з високими стандартами"],
+"mkt:conflict":["Сітка Томаса і Кілманна: суперництво, співпраця, компроміс, уникнення, пристосування","Конструктивний конфлікт за задачею проти деструктивного за особистостями","Позиції проти інтересів: гарвардський метод переговорів","Ціна уникнення конфлікту для якості рішень","Роль третьої сторони і медіації","Ознаки, що конфлікт перейшов в особистий, і як повернути його в предметний"],
+"mkt:negotiation":["BATNA — найкраща альтернатива обговорюваній угоді, джерело сили","Зона можливої угоди між резервними цінами сторін","Розподільчі переговори проти інтегративних","Розширення пирога через різну цінність питань для сторін","Роль першої пропозиції і якоріння","Відділяти людей від проблеми і позиції від інтересів"],
+"mkt:decision":["Зворотні і незворотні рішення вимагають різної швидкості і глибини","Двері одностороннього і двостороннього руху за Безосом","Очікувана цінність і її межі за рідкісних катастрофічних результатів","Передсмертний аналіз: уявити провал заздалегідь і знайти причини","Зовнішній погляд і базові частоти проти внутрішнього оптимізму","Різниця якості рішення і якості результату"],
+"mkt:lean":["Цикл побудувати-виміряти-навчитися і мінімізація часу обороту","MVP як інструмент перевірки гіпотези, а не урізаний продукт","Перевірювані гіпотези цінності і зростання","Метрики марнославства проти дієвих метрик","Розворот або наполегливість як ключове рішення","Критика: не все можна перевірити ітераціями, є ринки з довгим циклом"],
+"mkt:agile":["Чотири цінності маніфесту і пріоритет лівої частини над правою","Ітеративність і раннє отримання зворотного зв'язку","Scrum, Kanban і відмінність між ними","Карго-культ: ритуали без зміни принципів","Де Agile працює погано: жорсткі строки, регуляторика, апаратні проєкти","Суперечка про масштабування і про фреймворки на кшталт SAFe"],
+"mkt:kpi-systems":["Чотири перспективи Каплана і Нортона: фінанси, клієнти, процеси, навчання","Випереджаючі і запізнілі показники","Причинно-наслідкові зв'язки між перспективами","Обмеження кількості показників і боротьба за фокус","Зв'язок із законом Гудгарта і ризиком маніпуляції","Чому більшість впроваджень вироджується у звітність"],
+"mkt:change":["Вісім кроків Коттера: від створення терміновості до закріплення в культурі","Модель Левіна: розморозити, змінити, заморозити","Причини опору: страх втрати статусу, недовіра, втома від змін","Роль ранніх перемог і коаліції прихильників","Крива змін і провал продуктивності в середині шляху","Чому більшість трансформацій не досягає цілей"],
+"mkt:culture":["Три рівні за Шейном: артефакти, декларовані цінності, базові уявлення","Розрив між заявленими і реальними цінностями","Культура визначається тим, яку поведінку винагороджують і терплять","Типологія конкуруючих цінностей: клан, адхократія, ринок, ієрархія","Культура їсть стратегію на сніданок: сенс і обмеженість фрази","Як культура змінюється: через найм, звільнення і рішення в конфліктних ситуаціях"],
+"mkt:hiring":["Що реально передбачає успіх: робочі проби і структуроване інтерв'ю","Слабка передбачувальна сила вільного інтерв'ю і чарівності кандидата","Ефект ореолу і перше враження в перші хвилини","Структурування: однакові питання, шкала оцінки, незалежні оцінювачі","Помилка найму коштує дорожче за пропуск хорошого кандидата","Різноманіття як джерело якості рішень і як джерело конфлікту"],
+"mkt:peter":["В ієрархії співробітник піднімається до рівня своєї некомпетентності","Причина: підвищують за успіхи в поточній ролі, а не за придатність до нової","Наслідок: з часом посади займають невідповідні люди","Обхідні рішення: подвійна кар'єрна драбина, ротація, випробувальний період","Принцип Ділберта як саркастичне доповнення","Зв'язок із відмінністю експертної та управлінської траєкторій"],
+"mkt:parkinson":["Робота заповнює весь час, відведений на неї","Закон тривіальності: найбільше сперечаються про найпростіше питання","Зростання бюрократії незалежно від обсягу роботи","Практичне застосування: жорсткі короткі строки як інструмент фокуса","Ризик перегину: поспіх знижує якість і множить борги","Зв'язок із законом Гофштадтера про недооцінку строків"],
+"mkt:brooks":["Додавання людей у проєкт, що запізнюється, затримує його ще сильніше","Причини: час на введення в курс справи і зростання кількості каналів комунікації","Комунікаційні зв'язки зростають квадратично від чисельності","Не всі задачі подільні: дев'ять жінок не народять дитину за місяць","Наслідки для розміру команд і правило двох піц","Концептуальна цілісність і роль головного архітектора"],
+"mkt:conway":["Структура продукту повторює структуру комунікації організації","Наслідок: межі модулів збігаються з межами команд","Зворотний маневр: міняти оргструктуру, щоб отримати потрібну архітектуру","Чому монолітна організація не побудує модульну систему","Застосування поза розробкою: продукт, документи, процеси","Зв'язок із проблемою розрізнених відділів і швів у клієнтському досвіді"],
+"mkt:bcg":["Два виміри: частка ринку і темп зростання ринку","Чотири квадранти: зірки, дійні корови, знаки питання, собаки","Логіка перетоку грошей від корів до зірок і питань","Життєвий цикл продукту всередині матриці","Критика: два виміри надто грубі, визначення ринку довільне","Небезпека автоматичного закриття собак"],
+"mkt:ansoff":["Чотири стратегії: проникнення, розвиток ринку, розвиток продукту, диверсифікація","Ризик зростає в міру віддалення від знайомого продукту і ринку","Проникнення — найдешевший і недооцінений шлях","Диверсифікація пов'язана і непов'язана","Типова помилка: стрибок у диверсифікацію до вичерпання поточного ринку","Зв'язок із ресурсами і компетенціями компанії"],
+"mkt:swot":["Чотири поля: сильні і слабкі сторони, можливості і загрози","Внутрішні фактори проти зовнішніх","Головна помилка: список без висновків і без порівняння з конкурентом","Сила і слабкість визначаються лише відносно конкретного суперника","Перехресний аналіз як спосіб отримати дії, а не список","Коли інструмент доречний: швидка структурація обговорення, не стратегія"],
+"mkt:vrio":["Конкурентна перевага з ресурсів, а не лише з позиції на ринку","Чотири критерії: цінність, рідкість, складність копіювання, організованість","Динамічні здатності як уміння перебудовувати ресурси","Відмінність ресурсу від компетенції","Чому культура і репутація — найважче копійовані ресурси","Суперечка з позиційною школою Портера"],
+"mkt:moat":["П'ять типів рову: нематеріальні активи, витрати перемикання, мережевий ефект, перевага за витратами, ефективний масштаб","Відмінність справжнього рову від тимчасового лідерства","Як перевірити: чи збережеться перевага, якщо конкурент вкладе багато грошей","Рів звужується: технології і зміна поколінь споживачів","Приклади ровів, які виявилися ілюзією","Зв'язок з оцінкою компанії і горизонтом прогнозу"],
+"mkt:pricing-psych":["Разовий продаж, підписка, freemium, транзакційна комісія, реклама, ліцензування","Підписка змінює фокус із продажу на утримання","Freemium: економіка конверсії і вартість обслуговування безкоштовних","Багаторівневі тарифи і логіка розділення функцій","Плата за використання і її передбачуваність для клієнта","Як модель монетизації формує продукт, а не лише виручку"],
+"mkt:crm-retention":["Відтік буває добровільний і технічний, лікуються по-різному","Ранні сигнали відходу і предиктивні моделі","Онбординг як головний важіль: більшість іде в перші тижні","Зворотний відтік за рахунок розширення виручки в наявних клієнтах","Економіка утримання проти економіки залучення","Небезпека утримання знижками: псує базу і привчає торгуватися"],
+"mkt:crisis-comm":["Швидкість реакції важливіша за повноту інформації в перші години","Визнання, пояснення, дія: структура заяви","Мовчання читається як визнання провини","Кейс Tylenol як еталон і приклади провальних реакцій","Ефект Стрейзанд: спроба приховати посилює увагу","Підготовка заздалегідь: сценарії, спікери, канали"],
+"mkt:okr-vs-mbo":["MBO Друкера: узгодження цілей згори вниз і знизу вгору","Ідея внеску: кожен має розуміти, як його робота впливає на результат","Обмеження: річний цикл надто повільний для мінливого ринку","Перехід до OKR і коротших циклів","Спільна слабкість усіх систем: вимірюване витісняє важливе","Роль регулярного зворотного зв'язку замість щорічної оцінки"]
+});
+
+Object.assign(THESES.en, {
+"mkt:positioning":["Positioning operates on the customer's mind, not on the product","People hold three to five brands per category — the job is to occupy a slot and a word","Volvo owns safety, BMW owns driving: one brand, one word","The law of primacy: easier to be first in a new narrow category than second in a crowded one","Positioning against the leader: Avis 'we are number two', 7Up 'the uncola'","Line extension dilutes a brand: what means everything means nothing","The test: a competitor must not be able to claim the same, and there must be a segment you refuse"],
+"mkt:jtbd":["People hire a product to do a job, they do not buy its features","The milkshake case: the job is occupying a hand and staving off hunger on a dull commute","Competitors are defined by the job, not the product category — a banana and a bagel beat other shakes","Three dimensions of a job: functional, emotional, social","Four forces: push and pull drive change, habit and anxiety hold you back","Interviews are built on stories about one specific recent purchase, not opinions about features"],
+"mkt:unit-econ":["Unit economics tells you whether you make money on a single customer","CAC = all marketing and sales spend divided by new customers","LTV is computed on margin: order value × margin × frequency × lifetime","LTV/CAC of 3 is the norm; much higher means you are underinvesting in growth","CAC payback period matters more than the ratio: companies die of cash gaps","Halving churn doubles LTV — usually cheaper than improving advertising","LTV is systematically overstated and CAC rises as you scale"],
+"mkt:porter":["Profitability is set by industry structure, not just management quality","The threat of entrants depends on barriers: capital, patents, scale, network effects","Supplier power pulls margin up the chain (ASML, Nvidia)","Buyer power grows with their size and the ease of switching","Substitutes are another way to do the job; they are what usually kills an industry","Rivalry: slow growth plus high exit barriers equals a price war (airlines)","Criticism: the model is static and ignores complements and platform ecosystems"],
+"mkt:innovator":["Sustaining innovations improve familiar attributes — the incumbent wins those","Disruptive ones are worse on the main attributes but cheaper and simpler, entering from below","The incumbent rationally declines: low margin, small market, customers ask for something else","Customer focus is part of the trap: your best customers steer you away from the future","Performance overshoot: technology outruns needs, so competition shifts to price and convenience","Examples: Kodak, Nokia, Blockbuster, mainframes versus PCs","The remedy is a separate unit with separate metrics and a willingness to cannibalise yourself","Criticism: the theory explains the past better than it predicts the future"],
+"mkt:goodhart":["When a measure becomes a target it ceases to be a good measure","People optimise the metric rather than what it measured, usually without malice","Examples: output planned in tonnes, bounties for rat tails, call handling time, lines of code","Campbell's law and the cobra effect are the same phenomenon in other words","The problem is structural: a metric compresses reality and optimisation exploits what was lost","The fix: a set of counterbalancing metrics","Separate measurement from reward, and ask in advance how the number could be gamed"],
+"mkt:4p":["Product, price, place, promotion as the four levers","Extended to 7P for services: people, process, physical evidence","The elements are interdependent: changing one breaks the others","Criticism: the model looks from the seller's side, not the customer's","Lauterborn's 4C alternative: value, cost to the customer, convenience, communication"],
+"mkt:stp":["Three steps: split the market, choose a segment, occupy a place in the mind","Bases for segmentation: demographic, geographic, behavioural, psychographic, job-based","A good segment is measurable, reachable, large enough and homogeneous","Addressing everyone at once means addressing no one","The link to positioning and to choosing who you turn away"],
+"mkt:funnel":["The classic AIDA: attention, interest, desire, action","The modern version: awareness, interest, consideration, purchase, retention, referral","Conversion at each step and the search for the bottleneck","Criticism of the linear funnel: the real path loops and doubles back","The flywheel instead of the funnel: the customer as the engine of growth","Attribution: who gets credit when there are many touchpoints"],
+"mkt:aarrr":["Five stages: acquisition, activation, retention, revenue, referral","Activation as the moment value is first received","Retention is the master metric; without it nothing else means anything","Cohort analysis and a retention curve that flattens out","The north star metric and the danger of optimising the wrong number","How the model maps to the maturity of the product"],
+"mkt:pmf":["Andreessen's definition: the market pulls the product out of your hands","Sean Ellis test: over 40% would be very disappointed to lose the product","Signs it is absent: growth only from ads, high churn, listless usage","A retention curve that flattens is the objective indicator","The danger of scaling before you have it","Fit is not permanent: markets move and it can be lost"],
+"mkt:diffusion":["Rogers's five groups: innovators, early adopters, early majority, late majority, laggards","The adoption curve and its normal distribution","Moore's chasm between early adopters and the early majority","The groups buy for different reasons: enthusiasts want novelty, the majority wants reliability","The beachhead strategy: take one narrow niche completely rather than spread thin","The role of references and social proof in crossing the chasm"],
+"mkt:blue-ocean":["The red ocean of competition versus the blue ocean of new demand","Refusing the trade-off between value and cost","The four actions grid: eliminate, reduce, raise, create","The strategy canvas as a way to visualise difference","Examples: Cirque du Soleil, Nintendo Wii, Southwest","Criticism: the cases were selected after the fact and blue oceans are short-lived"],
+"mkt:brand-equity":["A brand is the premium people pay for the identical thing","Aaker's model: awareness, associations, perceived quality, loyalty","Keller's pyramid: from recognition to resonance","A brand lowers the cost of choosing and the risk to the buyer","How it is measured: price premium, elasticity, repeat purchase rate","The danger of a gap between the brand promise and the actual experience"],
+"mkt:brand-arch":["House of brands versus branded house","Monolithic, endorsed and standalone models","The case for one brand: transferred trust, cheaper promotion","The case for separate brands: risk isolation and precise positioning","Examples: Procter & Gamble versus Apple and Virgin","When a sub-brand is justified and when it dilutes the parent"],
+"mkt:nps":["The willingness-to-recommend question on a 0 to 10 scale","Promoters, passives, detractors and the formula","Its strength: simplicity and comparability across companies","Criticism: information loss, cultural differences in scoring, weak link to revenue","The danger of tying bonuses to NPS and degenerating into begging for scores","Complementary metrics: CSAT, CES, actual repeat behaviour"],
+"mkt:segmentation-rfm":["Three dimensions: recency, frequency, monetary value","Segments: champions, loyal, dormant, at risk, lost","A different communication script for each segment","The Pareto principle inside the customer base: a minority produces most revenue","Reactivating dormant customers is cheaper than acquiring new ones","The limitation: the model looks backwards and predicts behaviour change poorly"],
+"mkt:seo-basics":["Three stages: crawling, indexing, ranking","Search intent: informational, navigational, commercial, transactional","Technical factors, content and link authority","The long tail of queries and why it often pays better than head terms","E-E-A-T and the role of expertise for sensitive topics","The effect of generative answers on site traffic"],
+"mkt:content-mkt":["Selling through usefulness rather than direct advertising","The compounding effect: content works for years, ads stop with the budget","The long payback horizon as the main barrier","The content funnel: awareness, consideration, decision","The difficulty of measuring contribution to sales and the role of attribution","The devaluation of commodity content in the age of generative models"],
+"mkt:influencer":["Transferring trust from an opinion leader to a brand","Micro and nano influencers: less reach, higher engagement and trust","Metrics: reach, engagement, cost per contact, actual sales","Fake followings and how to audit an audience","Reputational transfer runs in both directions","Disclosure requirements and why they affect performance"],
+"mkt:ab-testing":["Random assignment as the basis of causal inference","Statistical significance, power and the required sample size","Peeking at results early as a source of false findings","Multiple comparisons and the corrections for them","Local maxima: a series of small tests never produces a breakthrough","External validity: seasonality, novelty effects, differences between segments"],
+"mkt:cognitive-mkt":["Cialdini's reciprocity, scarcity, authority, consistency, liking, social proof","The decoy effect: a third option that makes the target look better","Restricting choice: Schwartz's paradox of choice","The left-digit effect and charm pricing","The line between influence and manipulation","The long-run cost of dark patterns to brand trust"],
+"mkt:okr":["The objective is qualitative and inspiring, key results are measurable","How it differs from KPIs: OKRs are about change, KPIs about health","Ambitious targets and the 70% achievement norm","Cascading versus bottom-up alignment","Common failures: turning it into a task list and tying it to bonuses","The rhythm: quarterly cycle, weekly check-in, retrospective"],
+"mkt:smart":["Specific, measurable, achievable, relevant, time-bound","Its strength: it turns an intention into a checkable commitment","Its weakness: it nudges you towards safe, easily measured goals","The tension between achievable and ambitious","Where it fails: research, creative work, early-stage products","Complements: intention-based goals and if-then implementation rules"],
+"mkt:motivation":["Maslow's pyramid and its weak empirical basis","Herzberg's two factors: hygiene factors and motivators","Removing dissatisfaction does not create satisfaction","Deci and Ryan's self-determination theory: autonomy, competence, relatedness","The crowding-out effect: external reward kills intrinsic motivation","When money motivates and when it stops working"],
+"mkt:leadership":["Lewin's classification: authoritarian, democratic, laissez-faire","Hersey and Blanchard's situational leadership: style depends on follower maturity","Transformational versus transactional leadership","Servant leadership and its limits","The myth of innate leadership traits and what the research shows","Kotter's distinction between management and leadership"],
+"mkt:delegation":["Handing over the task together with the authority and ownership of the result","Levels of delegation from following instructions to full autonomy","Why managers do not delegate: fear for quality, the illusion of speed, need for control","Reverse delegation: how the task climbs back to the manager","The rule: delegate the outcome, not the method","The link to team scalability and manager burnout"],
+"mkt:team-stages":["Forming, storming, norming, performing, adjourning","Conflict at the storming stage is normal and necessary","The manager's job changes at every stage","Regression when membership or the goal changes","Psychological safety as the condition for surviving storming","Criticism of the model's linearity"],
+"mkt:psych-safety":["Edmondson's definition: you can take risks and be wrong without humiliation","Google's Project Aristotle: the strongest predictor of team effectiveness","How it differs from softness and low standards","Signs it is missing: silence in meetings, hidden mistakes, no questions","How it is built: how the leader reacts to bad news and to errors","Combining high safety with high standards"],
+"mkt:conflict":["The Thomas-Kilmann grid: competing, collaborating, compromising, avoiding, accommodating","Constructive task conflict versus destructive personal conflict","Positions versus interests: the Harvard negotiation method","The cost of avoiding conflict to decision quality","The role of a third party and mediation","Signs a conflict has turned personal and how to bring it back to the issue"],
+"mkt:negotiation":["BATNA is your best alternative to a negotiated agreement and the source of your power","The zone of possible agreement between the two reservation prices","Distributive versus integrative negotiation","Growing the pie by exploiting different valuations of different issues","The role of the first offer and anchoring","Separate the people from the problem and positions from interests"],
+"mkt:decision":["Reversible and irreversible decisions demand different speed and depth","Bezos's one-way and two-way doors","Expected value and its limits when outcomes are rare and catastrophic","Pre-mortem: imagine the failure in advance and find its causes","The outside view and base rates against internal optimism","The difference between decision quality and outcome quality"],
+"mkt:lean":["The build-measure-learn loop and minimising cycle time","The MVP as an instrument for testing a hypothesis, not a stripped-down product","Testable hypotheses of value and of growth","Vanity metrics versus actionable metrics","Pivot or persevere as the central decision","Criticism: not everything can be tested iteratively; some markets have long cycles"],
+"mkt:agile":["The four manifesto values and the priority of the left side over the right","Iteration and getting feedback early","Scrum, Kanban and the difference between them","Cargo cult: rituals without any change in principles","Where Agile fits badly: hard deadlines, regulated work, hardware projects","The dispute over scaling and frameworks such as SAFe"],
+"mkt:kpi-systems":["Kaplan and Norton's four perspectives: financial, customer, process, learning","Leading and lagging indicators","Cause-and-effect links between the perspectives","Limiting the number of indicators and fighting for focus","The link to Goodhart's law and the risk of manipulation","Why most implementations decay into reporting"],
+"mkt:change":["Kotter's eight steps, from creating urgency to anchoring in the culture","Lewin's model: unfreeze, change, refreeze","Sources of resistance: fear of losing status, distrust, change fatigue","The role of early wins and a coalition of supporters","The change curve and the productivity dip in the middle","Why most transformations fall short of their goals"],
+"mkt:culture":["Schein's three levels: artefacts, espoused values, basic assumptions","The gap between stated and actual values","Culture is defined by what behaviour is rewarded and what is tolerated","The competing values framework: clan, adhocracy, market, hierarchy","Culture eats strategy for breakfast: the meaning and the limits of the phrase","How culture changes: through hiring, firing and decisions made under conflict"],
+"mkt:hiring":["What actually predicts success: work samples and structured interviews","The weak predictive power of unstructured interviews and candidate charm","The halo effect and first impressions in the opening minutes","Structuring: identical questions, a rating scale, independent assessors","A bad hire costs more than missing a good candidate","Diversity as a source of decision quality and as a source of friction"],
+"mkt:peter":["In a hierarchy people rise to their level of incompetence","The cause: promotion rewards success in the current role, not fitness for the next","The consequence: over time posts fill with people unsuited to them","Workarounds: a dual career ladder, rotation, a probationary period","The Dilbert principle as the sardonic addendum","The link to separating expert and management tracks"],
+"mkt:parkinson":["Work expands to fill the time available for it","The law of triviality: the most argued-about item is the simplest one","Bureaucracy grows regardless of the amount of work","Practical use: tight short deadlines as a focusing device","The risk of overdoing it: haste lowers quality and accumulates debt","The link to Hofstadter's law about underestimating time"],
+"mkt:brooks":["Adding people to a late project makes it later","The causes: onboarding time and the growth in communication channels","Communication links grow quadratically with headcount","Not all tasks divide: nine women cannot make a baby in one month","Implications for team size and the two-pizza rule","Conceptual integrity and the role of a chief architect"],
+"mkt:conway":["A product's structure mirrors the communication structure of the organisation","The consequence: module boundaries land on team boundaries","The inverse manoeuvre: change the org chart to get the architecture you want","Why a monolithic organisation will not build a modular system","Application beyond engineering: products, documents, processes","The link to siloed departments and the seams they leave in customer experience"],
+"mkt:bcg":["Two dimensions: market share and market growth rate","Four quadrants: stars, cash cows, question marks, dogs","The logic of cash flowing from cows to stars and question marks","The product life cycle traced inside the matrix","Criticism: two dimensions are too crude and the market definition is arbitrary","The danger of automatically shutting down dogs"],
+"mkt:ansoff":["Four strategies: penetration, market development, product development, diversification","Risk rises as you move away from the familiar product and market","Penetration is the cheapest and most underrated route","Related and unrelated diversification","The classic error: jumping to diversification before exhausting the current market","The link to the company's resources and competences"],
+"mkt:swot":["Four fields: strengths, weaknesses, opportunities, threats","Internal factors versus external ones","The main error: a list with no conclusions and no comparison to a competitor","Strength and weakness only exist relative to a specific rival","Cross analysis as the way to produce actions rather than a list","When the tool is appropriate: quickly structuring a discussion, not setting strategy"],
+"mkt:vrio":["Competitive advantage comes from resources, not only from market position","Four tests: value, rarity, imitability, organisation","Dynamic capabilities as the ability to reconfigure resources","How a resource differs from a competence","Why culture and reputation are the hardest resources to copy","The argument with Porter's positioning school"],
+"mkt:moat":["Five types of moat: intangible assets, switching costs, network effects, cost advantage, efficient scale","How a real moat differs from a temporary lead","The test: would the advantage survive a competitor spending heavily against it","Moats narrow: technology shifts and generational change in consumers","Examples of moats that turned out to be illusory","The link to company valuation and forecast horizon"],
+"mkt:pricing-psych":["One-off sale, subscription, freemium, transaction fee, advertising, licensing","Subscription shifts the focus from selling to retaining","Freemium: the economics of conversion and the cost of serving free users","Tiered pricing and the logic of splitting features","Usage-based pricing and its unpredictability for the customer","How the monetisation model shapes the product itself, not just revenue"],
+"mkt:crm-retention":["Churn is either voluntary or involuntary, and each needs a different cure","Early warning signals and predictive models","Onboarding as the main lever: most people leave in the first weeks","Negative churn through expansion revenue from existing customers","The economics of retention against the economics of acquisition","The danger of retaining with discounts: it spoils the base and trains people to haggle"],
+"mkt:crisis-comm":["Speed of response matters more than completeness in the first hours","Acknowledge, explain, act: the structure of a statement","Silence reads as an admission of guilt","The Tylenol case as the benchmark and examples of failed responses","The Streisand effect: trying to bury it amplifies attention","Preparing in advance: scenarios, spokespeople, channels"],
+"mkt:okr-vs-mbo":["Drucker's MBO: aligning goals top-down and bottom-up","The idea of contribution: everyone should see how their work affects the result","The limitation: an annual cycle is too slow for a shifting market","The move to OKRs and shorter cycles","The shared weakness of all such systems: the measurable crowds out the important","The role of continuous feedback instead of an annual review"]
+});
+
+Object.assign(THESES.uk, {
+"econ:inflation":["Інфляція — падіння купівельної спроможності грошей, а не просто зростання цін","Три механізми: інфляція попиту, інфляція витрат, інфляційні очікування","Очікування самозбуваються — тому центробанк керує вірою людей у майбутні ціни","Рівняння Фішера MV=PQ і його слабке місце — нестабільна швидкість обігу V","Ціль ~2%, а не 0%, бо дефляція небезпечніша: попит відкладається, економіка стискається","Головний інструмент — ключова ставка, ціна лікування — уповільнення зростання і безробіття"],
+"econ:supply-demand":["Рівноважна ціна — перетин кривих попиту і пропозиції","Еластичність = чутливість попиту до зміни ціни","Піднімати ціну вигідно лише на нееластичному товарі, інакше виручка падає","Еластичність визначають: замінники, частка в бюджеті, час, необхідність","Податок лягає на менш еластичну сторону ринку — звідси акцизи на цигарки і пальне","Модель ламається на ефекті Веблена і нераціональній поведінці"],
+"econ:game-theory":["Теорія ігор — про ситуації, де результат залежить від рішень обох сторін","Дилема в'язня: здати вигідно за будь-якого ходу суперника, підсумок гірший для обох","Раціональність кожного може дати гірший результат для всіх","Рівновага Неша — стан, де нікому не вигідно міняти стратегію поодинці; стабільно ≠ добре","Приклади: гонка озброєнь, цінові війни, допінг, реклама, переробки","Повторювана гра робить співпрацю раціональною; переможна стратегія — 'око за око'"],
+"econ:kahneman":["Система 1 — швидка й автоматична, Система 2 — повільна і витратна","Система 2 лінива і зазвичай погоджується з Системою 1; ми живемо Системою 1","Задача про биту і м'яч: інтуїтивна відповідь 10 центів невірна, правильна — 5","Теорія перспектив: важлива зміна відносно точки відліку, а не підсумковий стан","Несприйняття втрат: втрата відчувається приблизно вдвічі сильніше за рівну вигоду","Фреймінг змінює рішення за однакових фактів (виживаність 90% проти смертності 10%)","Знання про викривлення не захищає від них — допомагають процедури, а не сила волі"],
+"econ:compound":["Гроші сьогодні дорожчі за ті самі гроші завтра — їх можна вкласти","Складний відсоток нараховується на суму разом із накопиченими відсотками, зростання нелінійне","Правило 72: ділиш 72 на ставку і отримуєш строк подвоєння","Дисконтування — зворотна операція, основа оцінки вартості бізнесу","Дорогий борг працює за тією ж формулою проти тебе: гасити його вигідніше, ніж інвестувати","Час важливіший за суму: він у показнику степеня, сума — лише множник"],
+"econ:lemons":["Асиметрія інформації: одна сторона угоди знає про якість більше за іншу","Покупець платить середню ціну — хороші товари йдуть з ринку, залишаються 'лимони'","Несприятливий відбір: погана якість витісняє хорошу, ринок схлопується","Приклади: страхування, кредитування, найм, фриланс-біржі","Сигнали — витратні докази якості, які дорожче підробити поганому гравцю","Скринінг — відсів з боку неінформованого: тестове, техогляд, франшиза","Бренди, дипломи, аудит існують як механізм зняття асиметрії"],
+"econ:laffer":["Залежність податкових зборів від ставки: за 0% і за 100% збори дорівнюють нулю","Існує точка максимуму, після якої зростання ставки знижує надходження","Механізми уникнення: тіньовий сектор, зниження активності, вивід капіталу","Головна проблема — ніхто не знає, де ця точка емпірично","Політичне використання кривої як виправдання зниження податків і критика цього"],
+"econ:veblen":["Попит зростає разом із ціною, що порушує базовий закон попиту","Ціна працює як сигнал статусу, а не як витрата","Демонстративне споживання за Вебленом: трата як доказ становища","Відмінність від ефекту сноба і ефекту приєднання до більшості","Застосування в люксових брендах: зниження ціни руйнує цінність"],
+"econ:invisible-hand":["Ідея Адама Сміта: особистий інтерес через обмін веде до суспільної користі","Умови роботи механізму: конкуренція, поінформованість, відсутність примусу","Перша теорема добробуту як формалізація ідеї","Де механізм ламається: зовнішні ефекти, монополія, асиметрія інформації, суспільні блага","Сміт не був ринковим фундаменталістом — контекст Теорії моральних почуттів"],
+"econ:commons":["Спільний ресурс із відкритим доступом виснажується, бо витрати колективні, а вигода приватна","Приклад Гардіна з пасовищем і його логіка","Два класичні рішення: приватизація або державне регулювання","Елінор Остром показала третій шлях — самоврядування спільнотою","Вісім принципів Остром: межі, локальні правила, моніторинг, градуйовані санкції","Критика вихідної постановки Гардіна: він описував відкритий доступ, а не общинну власність"],
+"econ:externality":["Зовнішній ефект — витрата або вигода, що лягає на третю сторону поза угодою","Негативні (забруднення) і позитивні (вакцинація, освіта) екстерналії","Ринок виробляє забагато благ із негативним ефектом і замало з позитивним","Податок Пігу інтерналізує витрату, вбудовуючи її в ціну","Альтернативи: торгівля квотами, субсидії, пряме регулювання","Практична складність — оцінити розмір зовнішнього ефекту в грошах"],
+"econ:public-goods":["Дві ознаки: невиключність і неконкурентність у споживанні","Приклади: оборона, вуличне освітлення, фундаментальна наука, чисте повітря","Проблема безбілетника: вигідно користуватися, не платячи","Ринок системно недовиробляє такі блага — звідси роль держави","Проміжні випадки: клубні блага і спільні ресурси"],
+"econ:market-power":["Монополія обмежує випуск і піднімає ціну вище конкурентного рівня","Безповоротні втрати суспільства як головний аргумент проти монополії","Олігополія: кілька гравців, взаємозалежність рішень, схильність до змови","Монопсонія — влада єдиного покупця, найчастіше на ринку праці","Антимонопольне регулювання і суперечка про те, що вважати шкодою: ціни чи структуру ринку"],
+"econ:price-discrim":["Продаж одного товару різним покупцям за різною ціною не через витрати","Перший ступінь: індивідуальна ціна за готовністю платити","Другий: ціна залежить від обсягу або версії товару (самовідбір покупців)","Третій: сегментація за ознакою — студенти, пенсіонери, регіон, час","Умови роботи: ринкова влада і неможливість перепродажу","Спірний ефект на добробут: може розширювати доступ, а може вилучати весь надлишок"],
+"econ:nat-monopoly":["Виникає, коли витрати падають з масштабом на всьому діапазоні попиту","Типові випадки: мережі електро- і водопостачання, залізниці, трубопроводи","Дублювати інфраструктуру неефективно, тому конкуренція не працює","Способи регулювання: тарифи за витратами, стеля ціни, держвласність","Проблема захоплення регулятора галуззю, яку він регулює"],
+"econ:phillips":["Вихідна ідея: зворотний зв'язок між інфляцією і безробіттям","Політичний висновок 1960-х — можна обирати точку на кривій","Стагфляція 1970-х зруйнувала модель: інфляція і безробіття зросли одночасно","Критика Фрідмана і Фелпса: працює лише несподівана інфляція","Природний рівень безробіття і вертикальна крива в довгому періоді","Сучасне трактування: роль очікувань і чому зв'язок ослаб"],
+"econ:unemployment":["Фрикційне — час пошуку роботи, неминуче і почасти корисне","Структурне — невідповідність навичок попиту, найважче","Циклічне — падіння попиту в кризу","Сезонне і приховане безробіття","Повна зайнятість не означає нульове безробіття","Що не потрапляє в статистику: зневірені шукати і неповна зайнятість"],
+"econ:gdp":["ВВП — вартість кінцевих товарів і послуг, вироблених за період на території","Три способи розрахунку: за виробництвом, доходами і витратами","Номінальний проти реального, ВВП на душу і за паритетом купівельної спроможності","Не враховує: домашню працю, тіньову економіку, шкоду природі, нерівність, якість життя","Парадокс: аварія та її ліквідація збільшують ВВП","Альтернативи: ІЛР, індекс справжнього прогресу, критика Кузнеця — автора показника"],
+"econ:gini":["Коефіцієнт Джині від 0 до 1 і крива Лоренца","Обмеження показника: однаковий Джині за різної структури нерівності","Децильні і квінтильні коефіцієнти як доповнення","Гіпотеза Кузнеця: нерівність зростає, потім падає в міру розвитку","Пікетті і теза про дохідність капіталу вищу за темп зростання економіки","Відмінність нерівності доходів і нерівності багатства"],
+"econ:schools":["Кейнс: попит визначає випуск, у кризу потрібен державний стимул","Австрійці: криза — оздоровлення після викривлення структури капіталу дешевим кредитом","Суперечка про природу процентної ставки і роль часу у виробництві","Ставлення до втручання: порятунок попиту проти розчищення помилок","Монетаризм Фрідмана як третя позиція","Як суперечка проявилася в реакції на кризу 2008 року"],
+"econ:multiplier":["Гривня держвидатків збільшує ВВП більш ніж на гривню через ланцюг витрат","Залежність від граничної схильності до споживання","Ефект витіснення приватних інвестицій як контраргумент","Мультиплікатор більший у кризу і за нульової ставки, менший за повної зайнятості","Відкрита економіка: частина стимулу витікає в імпорт","Емпіричні оцінки сильно розходяться — від 0.5 до 2"],
+"econ:liquidity-trap":["Ставка близько нуля, але економіка не оживає — грошова політика втрачає силу","Люди і банки тримають гроші, а не витрачають і не кредитують","Японія після 1990-х як головний приклад, потім Захід після 2008","Нульова нижня межа ставки і спроби її обійти від'ємними ставками","Виходи: фіскальний стимул, управління очікуваннями, кількісне пом'якшення","Зв'язок із дефляційними очікуваннями"],
+"econ:qe":["ЦБ купує довгострокові активи, коли знижувати ставку вже нікуди","Механізм: зростання цін активів, зниження дохідностей, перебалансування портфелів","Чому це не те саме, що друкувати гроші для населення","Побічні ефекти: зростання цін активів і внесок у майнову нерівність","Проблема виходу з програми і стиснення балансу","Суперечка про те, чому інфляція не настала одразу"],
+"econ:money-creation":["Кредит створює депозит — гроші виникають у момент видачі позики","Застаріла модель грошового мультиплікатора і її критика Банком Англії","Обмеження на створення грошей: попит на кредит, капітал банку, регулювання, ставка","Різниця між грошима центробанку і грошима комерційних банків","Що відбувається з грошима при погашенні кредиту","Чому резерви не лежать в основі кредитування, як вчили раніше"],
+"econ:bank-run":["Банк за природою неліквідний: короткі зобов'язання проти довгих активів","Модель Даймонда і Дібвіга: паніка як самозбувне очікування","Здоровий банк може впасти лише від втрати довіри","Страхування вкладів розриває логіку паніки","Зворотний бік — моральний ризик і потреба в нагляді","Швидкість сучасних набігів: цифровий банкінг і випадок SVB"],
+"econ:emh":["Ціни відображають усю доступну інформацію, обіграти ринок системно не можна","Три форми: слабка, напівсильна, сильна","Наслідок: технічний аналіз і активне управління не створюють стійкої переваги","Парадокс Гроссмана і Стігліца: якщо ринок ефективний, нікому не вигідно шукати інформацію","Аномалії проти гіпотези: моментум, ефект малих компаній, бульбашки","Суперечка Фами і Шиллера, які розділили одну Нобелівську премію"],
+"econ:markowitz":["Ризик портфеля менший за суму ризиків активів через неповну кореляцію","Ефективна межа: максимум дохідності за заданого ризику","Диверсифікація — єдиний безкоштовний обід у фінансах","Систематичний ризик не можна усунути диверсифікацією, несистематичний можна","Бета як міра чутливості до ринку і модель CAPM","Обмеження: кореляції зростають саме в кризу, коли захист потрібніший"],
+"econ:indexing":["Арифметика Шарпа: у сумі активні керуючі програють ринку на величину комісій","Дані SPIVA: більшість фондів програють індексу на довгому горизонті","Вплив комісій через складний відсоток на десятирічному горизонті","Проблема тих, хто вижив, у статистиці дохідності фондів","Аргументи за активне управління: неефективні ніші, управління ризиком","Суперечка про те, чи шкодить зростання індексних фондів ціноутворенню на ринку"],
+"econ:minsky":["Стабільність породжує нестабільність: довге зростання знижує сприйняття ризику","Три типи позичальників: забезпечений, спекулятивний, Понці","Момент Мінскі — точка, коли обслуговування боргу вимагає продажу активів","Фази бульбашки за Кіндлбергером: зміщення, бум, ейфорія, фіксація прибутку, паніка","Роль кредитного плеча і нової історії, що виправдовує ціни","Чому бульбашки важко розпізнати в реальному часі"],
+"econ:crisis2008":["Субстандартна іпотека і зниження стандартів видачі","Сек'юритизація: як погані кредити запакували в папери з найвищим рейтингом","Конфлікт інтересів рейтингових агентств, яким платить емітент","Кредитні дефолтні свопи і концентрація ризику в AIG","Модель видав і продав зруйнувала стимули перевіряти позичальника","Ланцюгова реакція: Lehman, заморозка міжбанківського ринку, порятунок банків","Наслідки: Додд-Френк, Базель III, суперечка про покарання винних"],
+"econ:moral-hazard":["Захист від наслідків змінює поведінку і підвищує ризик","Відмінність від несприятливого відбору: виникає після укладення угоди","Занадто великий, щоб впасти: очікування порятунку здешевлює ризик для банку","Приватизація прибутку і усуспільнення збитків","Інструменти стримування: франшиза, вимоги до капіталу, плани впорядкованої ліквідації","Приклади поза фінансами: страховка й обережність, безлімітні тарифи"],
+"econ:principal-agent":["Агент діє від імені принципала, але має свої інтереси і більше інформації","Класичні пари: акціонер і менеджер, виборець і депутат, клієнт і підрядник","Витрати агентських відносин: контроль, стимули, залишкові втрати","Опціони менеджерам як спроба вирівняти інтереси і її побічні ефекти","Зв'язок із законом Гудгарта: стимул за метрикою породжує маніпуляцію метрикою","Чому повністю розв'язати проблему не можна, можна лише здешевити"],
+"econ:coase-firm":["Питання Коуза: якщо ринок ефективний, навіщо потрібні ієрархії","Відповідь: трансакційні витрати пошуку, переговорів і контролю виконання","Межа фірми проходить там, де витрати організації дорівнюють витратам ринку","Специфічність активів і ризик вимагання за Вільямсоном","Вертикальна інтеграція як відповідь на загрозу опортунізму","Чому падіння трансакційних витрат (інтернет, платформи) зменшує фірми"],
+"econ:coase-theorem":["За нульових трансакційних витрат сторони домовляться про ефективний результат","Первинний розподіл прав впливає на багатство, але не на підсумкове розміщення ресурсів","Приклад із фабрикою і мешканцями, які потерпають від диму","Справжній сенс теореми — від зворотного: трансакційні витрати ніколи не дорівнюють нулю","Звідси значення чіткого визначення прав власності і дешевого судочинства","Критика: ефект володіння і переговорна сила ламають передумови"],
+"econ:comparative-adv":["Торгівля вигідна, навіть якщо одна країна виробляє все краще за іншу","Ключ — альтернативна вартість, а не абсолютна продуктивність","Класичний приклад Рікардо: сукно і вино, Англія і Португалія","Спеціалізація збільшує сукупний випуск за тих самих ресурсів","Виграш країни загалом не означає виграшу кожного: є галузі, що програють","Обмеження моделі: динаміка, ефект масштабу, мобільність капіталу"],
+"econ:protectionism":["Інструменти: мита, квоти, субсидії, нетарифні бар'єри","Аргументи за: захист молодих галузей, національна безпека, відповідь на демпінг","Аргумент про інфраструктуру зайнятості і соціальну ціну деіндустріалізації","Аргументи проти: зростання цін, втрата ефективності, відповідні заходи, захоплення політики лобістами","Концентрована вигода проти розсіяних витрат як політичний механізм","Історична суперечка: Гамільтон і Ліст проти вільної торгівлі"],
+"econ:exchange-rate":["Номінальний і реальний курс, їх відмінність","Паритет купівельної спроможності як довгостроковий орієнтир","Індекс бігмака як наочна ілюстрація і його обмеження","Що рухає курс у короткому періоді: ставки, потоки капіталу, очікування","Режими курсу: плаваючий, фіксований, керований","Неможлива трійця: вільний рух капіталу, фіксований курс і власна грошова політика несумісні"],
+"econ:dutch-disease":["Приплив валюти від сировини зміцнює курс і вбиває конкурентоспроможність інших галузей","Механізм: ефект переміщення ресурсів і ефект витрат","Чому багаті на ресурси країни часто зростають повільніше за бідні","Інституційний канал: рента розбещує і знижує потребу в податках із громадян","Волатильність сировинних цін як окремий фактор нестабільності","Контрприклади: Норвегія, Ботсвана, роль суверенних фондів та інститутів"],
+"econ:institutions":["Теза Аджемоглу і Робінсона: вирішують інститути, а не географія чи культура","Інклюзивні інститути проти екстрактивних","Природний експеримент: Північна і Південна Корея, Ногалес по обидва боки кордону","Роль критичних розвилок і залежності від пройденого шляху","Чому еліти опираються інклюзивним інститутам: страх творчого руйнування","Критика: ендогенність інститутів, роль географії за Даймондом і Саксом"],
+"econ:middle-income":["Країна перестає зростати, вичерпавши дешеву працю, але не створивши технологічної переваги","Затиснута між дешевими виробниками знизу й інноваційними економіками згори","Латинська Америка як типовий випадок, Корея і Тайвань як вихід","Що потрібно для виходу: освіта, НДДКР, інститути, якість держуправління","Демографічний фактор: старіння до досягнення багатства","Критика самого поняття — чи є пастка статистично"],
+"econ:scale":["Витрати на одиницю падають зі зростанням обсягу виробництва","Джерела економії: постійні витрати, закупівлі, спеціалізація, навчання","Крива досвіду: витрати падають на фіксований відсоток при подвоєнні накопиченого випуску","Негативний ефект масштабу: бюрократія і втрата керованості","Стратегічний наслідок: гонка за часткою ринку як спосіб знизити витрати","Де ефекту немає: послуги, кастомізація, творчі індустрії"],
+"econ:network-effects":["Цінність продукту зростає з кількістю користувачів","Прямі і перехресні ефекти, двосторонні ринки","Проблема курки і яйця при запуску і способи її розв'язання","Переможець забирає все і тенденція до концентрації","Негативні мережеві ефекти: перевантаження, шум, погіршення якості спільноти","Мультихоумінг і витрати перемикання як фактори стійкості платформи"],
+"econ:attention":["Увага як справді дефіцитний ресурс за достатку інформації","Теза Саймона: багатство інформації породжує бідність уваги","Бізнес-модель, де користувач не клієнт, а продукт","Механіки утримання: змінна винагорода, нескінченна стрічка, сповіщення","Зовнішні ефекти: поляризація, тривожність, ерозія глибокого читання","Суперечка про регулювання і про відповідальність платформ"],
+"econ:pricing":["Від витрат: просто, але ігнорує готовність платити","Від конкурентів: безпечно, але веде до цінової війни","Від цінності для клієнта: найскладніше і зазвичай прибутковіше","Психологічні прийоми: якір, декой, ціни з дев'яткою, дроблення","Цінність сприймається відносно альтернативи, а не абсолютно","Чому знижка дорожча, ніж здається: вплив на маржу і на сприйняття бренду"],
+"econ:sunk-cost":["Уже витрачене не має впливати на майбутнє рішення","Помилка незворотних витрат і її зв'язок із несприйняттям втрат","Ефект Конкорда: проєкт продовжують, бо багато вкладено","Ескалація прихильності в бізнесі, війнах і особистих стосунках","Як протистояти: питати, чи почав би я це сьогодні з нуля","Різниця між наполегливістю і впертістю в цій рамці"],
+"econ:opportunity-cost":["Справжня ціна рішення — найкраща з відкинутих альтернатив","Явні та неявні витрати, бухгалтерський і економічний прибуток","Приклад: навчання коштує не лише грошей, а й втраченого заробітку","Чому безкоштовного не буває: час завжди має альтернативу","Застосування до особистих рішень і до оцінки проєктів","Зв'язок із поняттям економічної ренти"],
+"econ:marginal-utility":["Кожна наступна одиниця блага приносить менше задоволення","Розв'язання парадоксу води й алмазів","Маржинальна революція і перехід від трудової теорії вартості","Обґрунтування спадного попиту і форми кривої","Наслідок для оподаткування: та сама сума значить різне для бідного і багатого","Обмеження: колекціонування, залежності, комплементарні блага"],
+"econ:giffen":["Товар Гіффена: попит зростає при зростанні ціни, закон попиту порушується","Механізм: ефект доходу переважає ефект заміщення","Умови: товар нижчого порядку і велика частка в бюджеті бідного споживача","Історичні суперечки і сучасні польові дані щодо рису в Китаї","Відмінність товару Гіффена від товару Веблена","Чому явище рідкісне і важко доказове"],
+"econ:crypto":["Цифровий файл легко копіюється — центральна задача, яку розв'язує блокчейн","Розподілений реєстр і консенсус замість довіреного посередника","Доказ роботи: чому витрати енергії і є захистом","Обмежена емісія і суперечка про те, гроші це чи актив","Проблеми: масштабованість, волатильність, регуляторний статус","Відмінність криптовалют від цифрових валют центробанків"],
+"econ:deflation":["Падіння цін відкладає покупки, попит стискається, ціни падають далі","Зростання реального боргового навантаження: борг дорожчає відносно доходів","Боргова дефляція за Фішером як механізм Великої депресії","Чому дефляція небезпечніша за помірну інфляцію","Жорсткість зарплат вниз і її роль у зростанні безробіття","Японський досвід і складність виходу з дефляційних очікувань"],
+"econ:public-debt":["Ключовий показник — відношення боргу до ВВП, а не абсолютна сума","Борг у власній валюті принципово відрізняється від боргу в чужій","Співвідношення ставки і темпу зростання економіки визначає стійкість","Борг перед своїми і перед зовнішніми кредиторами: різні наслідки","Суперечка про поріг 90% і помилка в розрахунках Рейнгарт і Рогоффа","Способи скорочення: зростання, інфляція, профіцит, реструктуризація, дефолт"],
+"econ:pensions":["Солідарна: працюючі утримують пенсіонерів прямо зараз","Накопичувальна: кожен збирає на свою пенсію через інвестиції","Демографічний ризик солідарної системи за старіння населення","Ринковий та інфляційний ризик накопичувальної системи","Проблема переходу: одне покоління платить двічі","Змішані моделі і роль підвищення пенсійного віку"],
+"econ:ubi":["Виплата всім без умов і перевірки нужденності","Аргументи за: простота, відсутність пастки бідності, свобода вибору, відповідь на автоматизацію","Аргументи проти: вартість, вплив на стимули до праці, інфляційний ризик","Що показали експерименти у Фінляндії, Кенії та Канаді","Альтернатива — від'ємний прибутковий податок","Суперечка про те, чи замінює БОД наявні допомоги, чи доповнює"],
+"econ:currency-area":["Критерії Манделла: мобільність праці, гнучкість цін, фіскальні трансферти, схожість шоків","Вигоди єдиної валюти: зняття витрат обміну і валютного ризику","Ціна: втрата власної грошової політики і курсу як амортизатора","Чому єврозона не відповідає критеріям повністю","Криза 2010-х: Греція як ілюстрація неможливості девальвувати","Суперечка про необхідність фіскального союзу для стійкості валютного"],
+"econ:disposition":["Інвестори надто рано продають зростаючі активи і надто довго тримають падаючі","Зв'язок із несприйняттям втрат і небажанням фіксувати збиток","Ментальний облік: розділення грошей за уявними рахунками","Надмірна самовпевненість і надлишкова торгівля, що знижує дохідність","Ефект володіння: річ у власності оцінюється дорожче","Практичні захисти: правила виходу, автоматизація, ребалансування за розкладом"]
+});
+
+Object.assign(THESES.en, {
+"econ:inflation":["Inflation is a fall in the purchasing power of money, not merely rising prices","Three mechanisms: demand-pull, cost-push, and inflation expectations","Expectations are self-fulfilling — which is why central banks manage belief about future prices","The Fisher equation MV=PQ and its weak point: velocity V is unstable","The target is ~2%, not 0%, because deflation is worse: spending is postponed and the economy contracts","The main tool is the policy rate; the cost of the cure is slower growth and unemployment"],
+"econ:supply-demand":["The equilibrium price sits where the supply and demand curves cross","Elasticity is the sensitivity of demand to a change in price","Raising price only pays on inelastic goods; otherwise revenue falls","Elasticity depends on substitutes, share of budget, time horizon and necessity","A tax falls on the less elastic side of the market — hence excise duties on tobacco and fuel","The model breaks on the Veblen effect and on irrational behaviour"],
+"econ:game-theory":["Game theory covers situations where your outcome depends on the other side's decision too","Prisoner's dilemma: defecting pays whatever the opponent does, yet both end up worse off","Individually rational behaviour can produce the worst collective result","A Nash equilibrium is where no one gains by changing strategy alone; stable does not mean good","Examples: arms races, price wars, doping, advertising, overtime culture","Repetition makes cooperation rational; the winning strategy is tit for tat"],
+"econ:kahneman":["System 1 is fast and automatic; System 2 is slow and effortful","System 2 is lazy and usually endorses System 1 — we live by System 1","The bat and ball problem: the intuitive answer of 10 cents is wrong, the answer is 5","Prospect theory: what matters is change relative to a reference point, not final wealth","Loss aversion: a loss feels roughly twice as strong as an equivalent gain","Framing changes decisions on identical facts (90% survival versus 10% mortality)","Knowing about biases does not protect you — procedures do, not willpower"],
+"econ:compound":["Money today is worth more than the same money tomorrow because it can be invested","Compound interest accrues on principal plus accumulated interest; growth is non-linear","Rule of 72: divide 72 by the rate to get the doubling time","Discounting is the reverse operation and underpins business valuation","Expensive debt runs the same formula against you: repaying beats investing","Time matters more than the sum: time is the exponent, the sum is only a multiplier"],
+"econ:lemons":["Information asymmetry: one side of a trade knows more about quality than the other","Buyers pay an average price, good goods leave the market, lemons remain","Adverse selection: bad quality drives out good and the market collapses","Examples: insurance, lending, hiring, freelance marketplaces","Signals are costly proofs of quality that are more expensive for a bad actor to fake","Screening is the uninformed side filtering: trial tasks, inspections, deductibles","Brands, degrees and audits exist as machinery for closing the information gap"],
+"econ:laffer":["Tax revenue as a function of the rate: at 0% and at 100% revenue is zero","There is a maximum point beyond which raising the rate reduces collection","Escape routes: the shadow economy, reduced activity, capital flight","The core problem is that nobody knows empirically where that point sits","How the curve is used politically to justify tax cuts, and the criticism of that"],
+"econ:veblen":["Demand rises together with price, violating the basic law of demand","Price works as a status signal rather than as a cost","Veblen's conspicuous consumption: spending as proof of standing","How it differs from the snob effect and the bandwagon effect","Application in luxury brands: cutting the price destroys the value"],
+"econ:invisible-hand":["Adam Smith's idea: self-interest through exchange produces public benefit","Conditions for it to work: competition, information, absence of coercion","The first welfare theorem as the formal version of the idea","Where it breaks: externalities, monopoly, information asymmetry, public goods","Smith was no market fundamentalist — the context of The Theory of Moral Sentiments"],
+"econ:commons":["An open-access shared resource is depleted because costs are collective and gains are private","Hardin's pasture example and its logic","Two classic remedies: privatisation or state regulation","Elinor Ostrom demonstrated a third path: community self-governance","Ostrom's eight principles: boundaries, local rules, monitoring, graduated sanctions","Criticism of Hardin's framing: he described open access, not commonly owned property"],
+"econ:externality":["An externality is a cost or benefit landing on a third party outside the transaction","Negative (pollution) and positive (vaccination, education) externalities","Markets overproduce goods with negative effects and underproduce positive ones","A Pigouvian tax internalises the cost by building it into the price","Alternatives: tradable permits, subsidies, direct regulation","The practical difficulty is pricing the externality in money"],
+"econ:public-goods":["Two features: non-excludability and non-rivalry in consumption","Examples: defence, street lighting, basic science, clean air","The free rider problem: it pays to use without paying","Markets systematically underprovide such goods — hence the role of the state","Intermediate cases: club goods and common-pool resources"],
+"econ:market-power":["A monopoly restricts output and pushes price above the competitive level","Deadweight loss to society as the main argument against monopoly","Oligopoly: few players, interdependent decisions, a pull towards collusion","Monopsony is the power of a sole buyer, most often in labour markets","Antitrust regulation and the dispute over what counts as harm: prices or market structure"],
+"econ:price-discrim":["Selling the same good to different buyers at different prices for reasons unrelated to cost","First degree: an individual price matched to willingness to pay","Second degree: price depends on volume or version, letting buyers sort themselves","Third degree: segmentation by attribute — students, pensioners, region, time","Requirements: market power and no resale","Ambiguous welfare effect: it can widen access or extract the entire surplus"],
+"econ:nat-monopoly":["Arises when costs fall with scale across the whole range of demand","Typical cases: electricity and water networks, railways, pipelines","Duplicating infrastructure is wasteful, so competition does not work","Regulatory options: cost-based tariffs, price caps, public ownership","Regulatory capture by the industry being regulated"],
+"econ:phillips":["The original idea: an inverse relationship between inflation and unemployment","The 1960s policy conclusion that you could pick a point on the curve","The stagflation of the 1970s destroyed the model: both rose at once","Friedman and Phelps: only unexpected inflation has any effect","The natural rate of unemployment and a vertical long-run curve","The modern reading: the role of expectations and why the link has weakened"],
+"econ:unemployment":["Frictional: the time spent searching, unavoidable and partly useful","Structural: skills that do not match demand, the hardest kind","Cyclical: a fall in demand during a downturn","Seasonal and hidden unemployment","Full employment does not mean zero unemployment","What the statistics miss: discouraged workers and underemployment"],
+"econ:gdp":["GDP is the value of final goods and services produced in a territory over a period","Three ways to compute it: output, income and expenditure","Nominal versus real, per capita, and at purchasing power parity","It ignores household labour, the shadow economy, environmental damage, inequality and quality of life","The paradox: a disaster and its clean-up both add to GDP","Alternatives: HDI, the genuine progress indicator, and Kuznets's own criticism of his measure"],
+"econ:gini":["The Gini coefficient from 0 to 1 and the Lorenz curve","Its limitation: identical Gini values can hide very different structures","Decile and quintile ratios as a complement","The Kuznets hypothesis: inequality rises then falls with development","Piketty and the claim that returns on capital exceed the growth rate","The difference between income inequality and wealth inequality"],
+"econ:schools":["Keynes: demand determines output, and a slump calls for state stimulus","The Austrians: a crisis is the cure after cheap credit distorted the capital structure","The dispute over the nature of interest and the role of time in production","Attitudes to intervention: rescuing demand versus clearing out mistakes","Friedman's monetarism as a third position","How the argument played out in responses to the 2008 crisis"],
+"econ:multiplier":["A unit of government spending raises GDP by more than one unit through the spending chain","It depends on the marginal propensity to consume","Crowding out of private investment as the counterargument","The multiplier is larger in a slump and at the zero bound, smaller at full employment","In an open economy part of the stimulus leaks into imports","Empirical estimates vary widely, from 0.5 to 2"],
+"econ:liquidity-trap":["Rates near zero yet the economy does not revive — monetary policy loses traction","Households and banks hold money rather than spend or lend","Japan after the 1990s is the classic case, then the West after 2008","The zero lower bound and attempts to breach it with negative rates","Ways out: fiscal stimulus, expectation management, quantitative easing","The link to deflationary expectations"],
+"econ:qe":["The central bank buys long-dated assets once there is no room left to cut rates","The mechanism: asset prices rise, yields fall, portfolios rebalance","Why this is not the same as printing money for households","Side effects: asset price inflation and a contribution to wealth inequality","The problem of exiting the programme and shrinking the balance sheet","The debate over why consumer inflation did not follow immediately"],
+"econ:money-creation":["A loan creates a deposit — money comes into being when credit is issued","The obsolete money multiplier model and the Bank of England's critique of it","Limits on money creation: credit demand, bank capital, regulation, the policy rate","The difference between central bank money and commercial bank money","What happens to money when a loan is repaid","Why reserves do not underpin lending the way textbooks used to teach"],
+"econ:bank-run":["A bank is illiquid by design: short liabilities against long assets","The Diamond-Dybvig model: panic as a self-fulfilling expectation","A healthy bank can collapse purely from a loss of confidence","Deposit insurance breaks the logic of the run","The flip side is moral hazard and the need for supervision","The speed of modern runs: digital banking and the SVB case"],
+"econ:emh":["Prices reflect all available information, so the market cannot be beaten systematically","Three forms: weak, semi-strong and strong","Implication: technical analysis and active management create no durable edge","The Grossman-Stiglitz paradox: if markets were efficient, nobody would pay to gather information","Anomalies against the hypothesis: momentum, the small-cap effect, bubbles","The Fama-Shiller dispute, settled by them sharing one Nobel prize"],
+"econ:markowitz":["Portfolio risk is less than the sum of asset risks because correlation is imperfect","The efficient frontier: maximum return for a given level of risk","Diversification is the only free lunch in finance","Systematic risk cannot be diversified away, unsystematic risk can","Beta as a measure of market sensitivity, and the CAPM","The limitation: correlations rise precisely in a crisis, when you need protection most"],
+"econ:indexing":["Sharpe's arithmetic: in aggregate active managers lose to the market by the amount of fees","SPIVA data: most funds trail the index over long horizons","The effect of fees compounded over a decade","Survivorship bias in fund performance statistics","The case for active management: inefficient niches, risk control","The dispute over whether index fund growth harms price discovery"],
+"econ:minsky":["Stability breeds instability: a long expansion dulls the perception of risk","Three borrower types: hedge, speculative and Ponzi","The Minsky moment, when servicing debt requires selling assets","Kindleberger's phases: displacement, boom, euphoria, profit-taking, panic","The role of leverage and of a new story that justifies the prices","Why bubbles are so hard to identify in real time"],
+"econ:crisis2008":["Subprime mortgages and the collapse of lending standards","Securitisation: how bad loans were packaged into top-rated paper","The conflict of interest at rating agencies paid by the issuer","Credit default swaps and the concentration of risk in AIG","The originate-to-distribute model destroyed the incentive to vet borrowers","The chain reaction: Lehman, frozen interbank markets, bank rescues","The aftermath: Dodd-Frank, Basel III, and the argument over prosecuting anyone"],
+"econ:moral-hazard":["Protection from consequences changes behaviour and raises risk-taking","How it differs from adverse selection: it arises after the deal is struck","Too big to fail: the expectation of rescue makes risk cheaper for the bank","Privatised profits and socialised losses","Restraints: deductibles, capital requirements, orderly resolution plans","Examples beyond finance: insurance and caution, unlimited tariffs"],
+"econ:principal-agent":["The agent acts for the principal but has their own interests and better information","Classic pairs: shareholder and manager, voter and politician, client and contractor","Agency costs: monitoring, incentives and residual loss","Stock options as an attempt to align interests, and their side effects","The link to Goodhart's law: incentivising a metric invites gaming that metric","Why the problem can only be made cheaper, never solved"],
+"econ:coase-firm":["Coase's question: if markets are efficient, why do hierarchies exist at all","The answer: transaction costs of search, bargaining and enforcement","The boundary of the firm sits where organising costs equal market costs","Asset specificity and the hold-up risk, per Williamson","Vertical integration as a response to the threat of opportunism","Why falling transaction costs — the internet, platforms — shrink firms"],
+"econ:coase-theorem":["With zero transaction costs the parties will bargain to an efficient outcome","The initial allocation of rights affects wealth but not the final allocation of resources","The factory and the neighbours suffering from its smoke","The real meaning runs in reverse: transaction costs are never zero","Hence the importance of clear property rights and cheap courts","Criticism: the endowment effect and bargaining power break the premises"],
+"econ:comparative-adv":["Trade pays even when one country produces everything better than the other","The key is opportunity cost, not absolute productivity","Ricardo's classic case: cloth and wine, England and Portugal","Specialisation raises total output from the same resources","A national gain does not mean everyone gains: some industries lose","Limits of the model: dynamics, economies of scale, capital mobility"],
+"econ:protectionism":["Instruments: tariffs, quotas, subsidies, non-tariff barriers","The case for: infant industries, national security, answering dumping","The employment infrastructure argument and the social cost of deindustrialisation","The case against: higher prices, lost efficiency, retaliation, capture by lobbies","Concentrated benefits versus diffuse costs as the political mechanism","The historical dispute: Hamilton and List against free trade"],
+"econ:exchange-rate":["Nominal versus real exchange rates and the difference between them","Purchasing power parity as a long-run anchor","The Big Mac index as an illustration, and its limits","What moves rates in the short run: interest rates, capital flows, expectations","Regimes: floating, fixed, managed","The impossible trinity: free capital movement, a fixed rate and independent monetary policy cannot coexist"],
+"econ:dutch-disease":["Commodity inflows strengthen the currency and kill competitiveness elsewhere","The mechanism: resource movement effect and spending effect","Why resource-rich countries often grow more slowly than poor ones","The institutional channel: rent corrupts and removes the need to tax citizens","Commodity price volatility as a separate source of instability","Counterexamples: Norway, Botswana, the role of sovereign funds and institutions"],
+"econ:institutions":["The Acemoglu and Robinson thesis: institutions decide, not geography or culture","Inclusive versus extractive institutions","The natural experiment: North and South Korea, Nogales on both sides of the border","Critical junctures and path dependence","Why elites resist inclusive institutions: fear of creative destruction","Criticism: institutions are endogenous, and the role of geography per Diamond and Sachs"],
+"econ:middle-income":["Growth stalls once cheap labour is exhausted but no technological edge has been built","Squeezed between cheaper producers below and innovative economies above","Latin America as the typical case, Korea and Taiwan as the escape","What escape requires: education, R&D, institutions, quality of governance","The demographic factor: growing old before growing rich","Criticism of the concept: does the trap exist statistically at all"],
+"econ:scale":["Unit costs fall as output grows","Sources: fixed costs, purchasing, specialisation, learning","The experience curve: costs fall by a fixed percentage with each doubling of cumulative output","Diseconomies of scale: bureaucracy and loss of control","The strategic implication: chasing market share to lower costs","Where the effect is absent: services, customisation, creative industries"],
+"econ:network-effects":["The product becomes more valuable as more people use it","Direct and cross-side effects, two-sided markets","The chicken-and-egg problem at launch and how it is solved","Winner takes all and the tendency towards concentration","Negative network effects: congestion, noise, community decay","Multihoming and switching costs as determinants of platform durability"],
+"econ:attention":["Attention as the genuinely scarce resource in an age of abundant information","Simon's point: a wealth of information creates a poverty of attention","A business model where the user is the product rather than the customer","Retention mechanics: variable reward, infinite scroll, notifications","Externalities: polarisation, anxiety, the erosion of deep reading","The debate over regulation and platform responsibility"],
+"econ:pricing":["Cost-plus: simple, but blind to willingness to pay","Competitor-based: safe, but leads to price wars","Value-based: hardest to do and usually the most profitable","Psychological devices: anchors, decoys, charm pricing, unbundling","Value is perceived relative to the alternative, never in absolute terms","Why a discount costs more than it looks: margin and brand perception"],
+"econ:sunk-cost":["What is already spent should not influence a future decision","The sunk cost fallacy and its link to loss aversion","The Concorde effect: a project continues because so much has gone in","Escalation of commitment in business, wars and personal relationships","The counter: ask whether you would start this today from scratch","The difference between persistence and stubbornness in this frame"],
+"econ:opportunity-cost":["The true price of a decision is the best alternative you gave up","Explicit and implicit costs; accounting versus economic profit","Studying costs not only money but also forgone earnings","Nothing is free: time always has an alternative use","Application to personal decisions and to project appraisal","The link to the concept of economic rent"],
+"econ:marginal-utility":["Each additional unit of a good delivers less satisfaction","The resolution of the diamond-water paradox","The marginal revolution and the break from the labour theory of value","Why the demand curve slopes down and takes the shape it does","The implication for taxation: the same sum means different things to rich and poor","Limits: collecting, addiction, complementary goods"],
+"econ:giffen":["A Giffen good: demand rises as price rises, breaking the law of demand","The mechanism: the income effect outweighs the substitution effect","Conditions: an inferior good taking a large share of a poor consumer's budget","Historical disputes and modern field data on rice in China","How a Giffen good differs from a Veblen good","Why the phenomenon is rare and hard to prove"],
+"econ:crypto":["A digital file copies easily — the core problem the blockchain solves","A distributed ledger and consensus instead of a trusted intermediary","Proof of work: why the energy expenditure is precisely the security","Capped issuance and the argument over whether it is money or an asset","Problems: scalability, volatility, regulatory status","How cryptocurrencies differ from central bank digital currencies"],
+"econ:deflation":["Falling prices postpone purchases, demand contracts, prices fall further","The real debt burden rises: debt grows relative to incomes","Fisher's debt deflation as the mechanism of the Great Depression","Why deflation is more dangerous than moderate inflation","Downward wage rigidity and its role in raising unemployment","The Japanese experience and the difficulty of escaping deflationary expectations"],
+"econ:public-debt":["The key figure is debt relative to GDP, not the absolute sum","Debt in your own currency differs fundamentally from debt in someone else's","Sustainability depends on the relation between the interest rate and the growth rate","Debt owed domestically versus to foreign creditors has different consequences","The dispute over the 90% threshold and the spreadsheet error in Reinhart and Rogoff","Ways to reduce it: growth, inflation, surpluses, restructuring, default"],
+"econ:pensions":["Pay-as-you-go: today's workers support today's pensioners","Funded: each person accumulates their own pension through investment","The demographic risk to pay-as-you-go as populations age","The market and inflation risk in funded systems","The transition problem: one generation pays twice","Hybrid models and the role of raising the retirement age"],
+"econ:ubi":["A payment to everyone without conditions or means testing","The case for: simplicity, no poverty trap, freedom of choice, an answer to automation","The case against: cost, effects on work incentives, inflation risk","What the trials in Finland, Kenya and Canada actually showed","The alternative of a negative income tax","The dispute over whether it replaces existing benefits or adds to them"],
+"econ:currency-area":["Mundell's criteria: labour mobility, price flexibility, fiscal transfers, symmetric shocks","The gains from a single currency: no exchange costs, no currency risk","The price: losing your own monetary policy and the exchange rate as a shock absorber","Why the eurozone does not fully meet the criteria","The 2010s crisis: Greece as the illustration of being unable to devalue","The argument that a monetary union needs a fiscal union to survive"],
+"econ:disposition":["Investors sell winners too early and hold losers too long","The link to loss aversion and the reluctance to realise a loss","Mental accounting: money separated into imaginary buckets","Overconfidence and excessive trading that erodes returns","The endowment effect: an item you own is valued more highly","Practical defences: exit rules, automation, scheduled rebalancing"]
+});
+
+function TH(t){
+  const m = THESES[S.lang];
+  return (m && m[t.key]) ? m[t.key] : t.theses;
+}
 
 let T = I18N.ru;
 function L(key){ return (T && T[key] !== undefined) ? T[key] : (I18N.ru[key] !== undefined ? I18N.ru[key] : key); }
@@ -1876,7 +2640,7 @@ const TIER_BY_LVL = {1:"common", 2:"rare", 3:"epic"};
 const SUBJECTS = [SUBJECT_ECON, SUBJECT_MARKETING, SUBJECT_HISTORY, SUBJECT_PSYCH];
 SUBJECTS.forEach(s=>{
   s.topics = s.topics.concat(EXTRA[s.id]||[]);
-  s.topics.forEach(t=>{ t.lvl = lvlOf(t); t.rarity = TIER_BY_LVL[t.lvl]; });
+  s.topics.forEach(t=>{ t.lvl = lvlOf(t); t.rarity = TIER_BY_LVL[t.lvl]; t.key = s.id+":"+t.id; });
 });
 
 const PASS = 7, REPEAT_DAYS = 14, MIN_WORDS = 60;
@@ -1927,7 +2691,8 @@ function norm(o){
     sound:   o.sound !== false,
     theme:   o.theme==="dark" || o.theme==="light" ? o.theme : sysTheme(),
     peeked:  o.peeked && typeof o.peeked==="object" ? o.peeked : {},
-    lang:    I18N[o.lang] ? o.lang : detectLang()
+    lang:    I18N[o.lang] ? o.lang : detectLang(),
+    notes:   o.notes && typeof o.notes==="object" ? o.notes : {}
   };
 }
 function load(){
@@ -1999,6 +2764,7 @@ function go(name){
   if(name==="exam") renderExam();
   if(name==="arch") tab(curTab);
   if(name==="sync") renderSync();
+  if(name==="note") renderNotebook();
 }
 
 /* ============================================================
@@ -2221,7 +2987,7 @@ function renderHome(){
     const f = findT(S.active.sid, S.active.tid);
     const att = S.attempts[k(S.active.sid,S.active.tid)] || 0;
     b.innerHTML = '<div class="banner"><div class="eyebrow">'+L("inStudy")+(att?" · "+L("attempts")+" "+att:"")+'</div>'
-      + '<div class="tt">'+esc(f.t.title)+'</div>'
+      + '<div class="tt">'+esc(TT(f.t))+'</div>'
       + '<div class="row"><button class="btn" onclick="go(\'study\')">'+L("contin")+'</button>'
       + '<button class="btn3" onclick="surrender()">'+L("giveUp")+'</button></div>'
       + '<div class="xptext" style="margin-top:16px">'+L("drumLocked")+'</div></div>';
@@ -2269,7 +3035,7 @@ function cellHTML(t, locked){
   const r = RAR[t.rarity]||RAR.common;
   return '<div class="cell'+(locked?" locked":"")+'" style="--rc:'+r.c+'">'
     + (locked?'<div class="clock">'+L("closedCell")+'</div>':'')
-    + '<div class="cn">'+esc(t.title)+'</div>'
+    + '<div class="cn">'+esc(TT(t))+'</div>'
     + '<div><div class="clv">+'+r.xp+' XP</div><div class="cr">'+r.n+'</div></div></div>';
 }
 /* Полоса барабана. Доступные темы перемешаны с закрытыми — закрытые показаны
@@ -2350,7 +3116,7 @@ function showWon(t){
   if(t.rarity!=="common"){ shake(); flash(r.raw); confetti(r.raw, t.rarity==="epic"?170:90); }
   document.getElementById("won").innerHTML =
     '<div class="won" style="--rc:'+r.c+'"><div class="rr">'+r.n+' · '+L("levelIs")+' '+t.lvl+'</div>'
-    + '<div class="tt">'+esc(t.title)+'</div>'
+    + '<div class="tt">'+esc(TT(t))+'</div>'
     + '<div class="xp">+'+xpFor(t.rarity,PASS,S.streak+1,false)+'…'+xpFor(t.rarity,10,S.streak+1,false)+' '+L("xpDepends")+'</div>'
     + '<button class="btn big acid" onclick="take(\''+curSubj.id+'\',\''+t.id+'\')">'+L("take")+'</button></div>';
   document.getElementById("won").scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -2371,13 +3137,13 @@ const PEEK_MULT = 0.6;
 /* что уже сдано в этом предмете — чтобы подталкивать связывать новое со старым */
 function knownIn(sid, limit){
   return Object.keys(S.learned).filter(x=>x.split(":")[0]===sid)
-    .map(x=>{ const f=findT(sid,x.split(":")[1]); return f?f.t.title:null; })
+    .map(x=>{ const f=findT(sid,x.split(":")[1]); return f?TT(f.t):null; })
     .filter(Boolean).slice(0,limit||14);
 }
 
 function searchLinks(f){
-  const q = encodeURIComponent(f.t.title);
-  const qc= encodeURIComponent(f.t.title+" "+L("qCritique"));
+  const q = encodeURIComponent(TT(f.t));
+  const qc= encodeURIComponent(TT(f.t)+" "+L("qCritique"));
   return [
     [L("srcGoogle"), L("srcGoogleD"), "https://www.google.com/search?q="+q],
     [L("srcSchol"),  L("srcScholD"),  "https://scholar.google.com/scholar?q="+q],
@@ -2386,13 +3152,13 @@ function searchLinks(f){
   ];
 }
 function queryList(f){
-  const t = f.t.title;
+  const t = TT(f.t);
   return [t, t+" "+L("qSimple"), t+" "+L("qExamples"), t+" "+L("qWho"), t+" "+L("qCritique"), t+" "+L("qLimits")];
 }
 function questions(f){
   const known = knownIn(f.s.id, 4);
   return [
-    L("q1a")+" <b>«"+esc(f.t.title)+"»</b> "+L("q1b"),
+    L("q1a")+" <b>«"+esc(TT(f.t))+"»</b> "+L("q1b"),
     L("q2"), L("q3"), L("q4"), L("q5"),
     known.length ? L("q6known")+" "+esc(known.join(", "))+"." : L("q6new"),
     L("q7"),
@@ -2405,7 +3171,7 @@ function renderStudy(){
   const f = findT(S.active.sid, S.active.tid), r = RAR[f.t.rarity];
   const key = k(S.active.sid, S.active.tid);
   document.getElementById("study-eyebrow").innerHTML = '<span style="color:'+r.c+'">'+r.n+'</span> · '+L("levelIs")+' '+f.t.lvl;
-  document.getElementById("study-title").textContent = f.t.title;
+  document.getElementById("study-title").textContent = TT(f.t);
   document.getElementById("study-sub").textContent = f.s.name;
 
   const mat=document.getElementById("study-mat"), gen=document.getElementById("study-gen");
@@ -2430,10 +3196,10 @@ function renderStudy(){
   if(S.peeked[key]){
     th.className = "theses";
     th.innerHTML = '<div class="h">'+L("peekOpen")+'</div><ul>'
-      + f.t.theses.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>";
+      + TH(f.t).map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>";
   } else {
     th.className = "peekbox";
-    th.innerHTML = '<p>'+L("peekWarn1")+' '+f.t.theses.length+' '+L("peekWarn2")+'</p>'
+    th.innerHTML = '<p>'+L("peekWarn1")+' '+TH(f.t).length+' '+L("peekWarn2")+'</p>'
       + '<button class="btn2" onclick="peek()">'+L("peekBtn")+'</button>';
   }
 }
@@ -2456,7 +3222,11 @@ function surrender(){
 function renderExam(){
   if(!S.active){ go("home"); return; }
   const f = findT(S.active.sid, S.active.tid);
-  document.getElementById("exam-title").textContent = f.t.title;
+  document.getElementById("exam-title").textContent = TT(f.t);
+  document.getElementById("exam-q").innerHTML =
+      '<div class="qh">'+esc(L("examQ"))+'</div><ol>'
+    + questions(f).map(q=>"<li>"+q+"</li>").join("") + '</ol>'
+    + '<p class="sub" style="margin:14px 0 0">'+esc(L("examQHint"))+'</p>';
   const ta=document.getElementById("answer");
   ta.value = S.answers[k(S.active.sid,S.active.tid)] || "";
   upd(); ta.focus();
@@ -2482,17 +3252,19 @@ function makePrompt(){
   const P = L("P");
   curPrompt =
     P.intro + "\n\n"
-  + P.subject + ": " + f.s.name + "\n" + P.topic + ": " + f.t.title + "\n"
+  + P.subject + ": " + f.s.name + "\n" + P.topic + ": " + TT(f.t) + "\n"
   + (att>1 ? P.attempt + ": " + att + " " + P.attemptNote + "\n" : "")
   + "\n" + P.theses + "\n"
-  + f.t.theses.map((x,i)=>(i+1)+". "+x).join("\n")
+  + TH(f.t).map((x,i)=>(i+1)+". "+x).join("\n")
   + "\n\n" + P.answer + "\n\"\"\"\n" + ans + "\n\"\"\"\n\n"
   + P.crit + "\n" + P.c1 + "\n" + P.c2 + "\n" + P.c3 + "\n" + P.c4 + "\n\n"
   + P.fmt + "\n\n"
-  + P.fGrade + "\n\n" + P.fOpen + "\n" + P.fMiss + "\n" + P.fErr + "\n" + P.fLearn + "\n" + P.fQ + "\n\n"
-  + P.tail + "\n\n" + P.lang;
+  + P.fGrade + "\n\n" + P.fOpen + "\n" + P.fMiss + "\n" + P.fErr + "\n"
+  + P.fWhole + "\n" + P.fLearn + "\n" + P.fQ + "\n\n"
+  + P.partial + "\n\n" + P.tail + "\n\n" + P.lang;
 
   document.getElementById("prompt-text").textContent = curPrompt;
+  document.getElementById("feedback").value = "";
   renderGrades(); go("prompt");
 }
 function copyPrompt(){ copyText(curPrompt); }
@@ -2548,6 +3320,10 @@ function grade(n){
           + (sm>1 ? " × "+sm.toFixed(2)+" "+L("pStreak") : "")
           + (peeked ? " × "+PEEK_MULT+" "+L("pPeek") : "");
     S.xp += gained;
+    /* запись в конспект: собственный ответ + разбор от Клода */
+    const fb = (document.getElementById("feedback").value||"").trim();
+    S.notes[key] = { a:(S.answers[key]||"").trim(), f:fb, g:n, at:Date.now(),
+                     xp:gained, att:S.attempts[key], peeked:peeked };
     S.learned[key]={grade:n, at:Date.now(), attempts:S.attempts[key], xp:gained, peeked:peeked};
     S.active=null; delete S.answers[key]; delete S.peeked[key];
   } else { S.streak = 0; }
@@ -2560,7 +3336,7 @@ function grade(n){
   if(passed){
     chord(f.t.rarity); shake(); flash(r.raw); confetti(r.raw, f.t.rarity==="epic"?200:120);
     box.innerHTML = '<div class="rr" style="color:var(--ok)">'+L("passed")+' · '+n+'/10</div>'
-      + '<div class="tt">'+esc(f.t.title)+'</div>'
+      + '<div class="tt">'+esc(TT(f.t))+'</div>'
       + '<div class="xp">+'+gained+' XP  ·  '+parts+(levelUp?"  ·  "+L("newLevel")+" "+lvlAfter:"")+'</div>'
       + '<p class="sub" style="margin:0 0 22px">'+L("passText1")+' '+REPEAT_DAYS+' '+L("passText2")+'</p>'
       + '<button class="btn big" onclick="go(\'home\')">'+L("next")+'</button>';
@@ -2568,13 +3344,147 @@ function grade(n){
   } else {
     sadSound();
     box.innerHTML = '<div class="rr" style="color:var(--bad)">'+L("failed")+' · '+n+'/10</div>'
-      + '<div class="tt">'+esc(f.t.title)+'</div>'
+      + '<div class="tt">'+esc(TT(f.t))+'</div>'
       + '<div class="xp" style="color:var(--bad)">'+L("streakReset")+'</div>'
       + '<p class="sub" style="margin:0 0 22px">'+L("failText")+'</p>'
       + '<div class="row" style="justify-content:center"><button class="btn" onclick="go(\'study\')">'+L("toMaterial")+'</button>'
       + '<button class="btn2" onclick="go(\'exam\')">'+L("retryNow")+'</button></div>';
   }
   go("res");
+}
+
+/* ============================================================
+   КОНСПЕКТ
+   Всё, что человек написал сам, и весь разбор — копится и
+   выгружается отдельной страницей, которую браузер печатает в PDF.
+   ============================================================ */
+function noteEntries(){
+  return Object.keys(S.notes).map(key=>{
+    const [sid,tid]=key.split(":"), f=findT(sid,tid);
+    return f ? {key, sid, f, n:S.notes[key]} : null;
+  }).filter(Boolean).sort((a,b)=>a.n.at-b.n.at);
+}
+function renderNotebook(){
+  const list = noteEntries();
+  const stats = document.getElementById("nb-stats");
+  const words = list.reduce((a,e)=>a + (e.n.a? e.n.a.trim().split(/\s+/).length : 0), 0);
+  const avg = list.length ? (list.reduce((a,e)=>a+e.n.g,0)/list.length).toFixed(1) : "—";
+  stats.innerHTML = '<div><b>'+list.length+'</b><span>'+esc(L("nbCount"))+'</span></div>'
+    + '<div><b>'+avg+'</b><span>'+esc(L("nbAvg"))+'</span></div>'
+    + '<div><b>'+words+'</b><span>'+esc(L("nbWords"))+'</span></div>';
+
+  const box = document.getElementById("nb-list");
+  if(!list.length){ box.innerHTML = '<div class="empty">'+esc(L("nbEmpty"))+'</div>'; return; }
+
+  box.innerHTML = SUBJECTS.map(sub=>{
+    const rows = list.filter(e=>e.sid===sub.id);
+    if(!rows.length) return "";
+    return '<div class="nbgroup"><div class="gh">'+esc(sub.name)+'</div>'
+      + rows.map(e=>{
+          const r = RAR[e.f.t.rarity]||RAR.common;
+          const preview = e.n.a ? esc(e.n.a.slice(0,220)) : esc(L("nbNoFeedback"));
+          return '<div class="nbrow" style="--rc:'+r.c+'">'
+            + '<div><div class="t">'+esc(TT(e.f.t))+'</div>'
+            + '<div class="m">'+esc(r.n)+' · '+esc(L("nbGrade"))+' '+e.n.g+'/10 · '
+            + (daysSince(e.n.at)===0?esc(L("today")):daysSince(e.n.at)+" "+esc(L("daysAgo")))
+            + (e.n.f? "" : " · "+esc(L("nbNoFeedback")))+'</div>'
+            + '<div class="p">'+preview+'</div></div></div>';
+        }).join("")
+      + '</div>';
+  }).join("");
+}
+
+function nbHTML(){
+  const list = noteEntries();
+  const avg = list.length ? (list.reduce((a,e)=>a+e.n.g,0)/list.length).toFixed(1) : "—";
+  const words = list.reduce((a,e)=>a + (e.n.a? e.n.a.trim().split(/\s+/).length : 0), 0);
+  const d = new Date(), pad=x=>String(x).padStart(2,"0");
+  const stamp = pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear();
+
+  const body = SUBJECTS.map(sub=>{
+    const rows = list.filter(e=>e.sid===sub.id);
+    if(!rows.length) return "";
+    return '<h2 class="sub-h">'+esc(sub.name)+'</h2>'
+      + rows.map(e=>{
+          const r = RAR[e.f.t.rarity]||RAR.common;
+          const dt = new Date(e.n.at);
+          return '<article>'
+            + '<div class="eb"><span class="dot" style="background:'+r.raw+'"></span>'
+            + esc(r.n)+' · '+esc(L("nbGrade"))+' '+e.n.g+'/10 · '
+            + pad(dt.getDate())+"."+pad(dt.getMonth()+1)+"."+dt.getFullYear()
+            + (e.n.peeked? ' · '+esc(L("withPeek")).replace("· ","") : '')+'</div>'
+            + '<h3>'+esc(TT(e.f.t))+'</h3>'
+            + '<div class="lbl">'+esc(L("nbAnswer"))+'</div>'
+            + '<div class="mine">'+esc(e.n.a||"—")+'</div>'
+            + (e.n.f ? '<div class="lbl">'+esc(L("nbFeedback"))+'</div><div class="fb">'+esc(e.n.f)+'</div>'
+                     : '<div class="none">'+esc(L("nbNoFeedback"))+'</div>')
+            + '<div class="lbl">'+esc(L("nbTheses"))+'</div><ul>'
+            + TH(e.f.t).map(x=>"<li>"+esc(x)+"</li>").join("")+'</ul>'
+            + '</article>';
+        }).join("");
+  }).join("");
+
+  return '<!DOCTYPE html><html lang="'+T.htmlLang+'"><head><meta charset="utf-8">'
+  + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+  + '<title>'+esc(L("nbTitle"))+' · '+stamp+'</title>'
+  + '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+  + '<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+  + '<style>'
+  + '*{box-sizing:border-box}'
+  + 'body{margin:0;background:#fff;color:#0a0a0a;font:16px/1.65 Inter,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}'
+  + '.page{max-width:820px;margin:0 auto;padding:56px 32px 90px}'
+  + '.cover{border-bottom:6px solid #0a0a0a;padding-bottom:34px;margin-bottom:44px}'
+  + '.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#8a8a8a}'
+  + 'h1{font-family:Space Grotesk,sans-serif;font-size:64px;line-height:.92;letter-spacing:-.045em;margin:12px 0 8px;text-transform:lowercase}'
+  + '.tag{font-size:15px;color:#5c5c5c;max-width:46ch}'
+  + '.nums{display:flex;gap:44px;margin-top:30px;flex-wrap:wrap}'
+  + '.nums b{display:block;font-family:Space Grotesk,sans-serif;font-size:38px;line-height:1;letter-spacing:-.04em}'
+  + '.nums span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8a8a8a;font-weight:700}'
+  + '.sub-h{font-family:Space Grotesk,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase;'
+  +   'border-bottom:3px solid #0a0a0a;padding-bottom:9px;margin:54px 0 0;page-break-after:avoid}'
+  + 'article{padding:30px 0 34px;border-bottom:1px solid #e2e0dc;page-break-inside:avoid}'
+  + '.eb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.09em;color:#8a8a8a;text-transform:uppercase}'
+  + '.dot{display:inline-block;width:9px;height:9px;margin-right:8px;vertical-align:middle}'
+  + 'h3{font-family:Space Grotesk,sans-serif;font-size:29px;line-height:1.08;letter-spacing:-.035em;margin:8px 0 22px}'
+  + '.lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:#8a8a8a;margin:22px 0 8px}'
+  + '.mine{white-space:pre-wrap;border-left:5px solid #0a0a0a;padding:2px 0 2px 18px;font-size:16px}'
+  + '.fb{white-space:pre-wrap;background:#f6f4f0;padding:18px 20px;font-size:14.5px;line-height:1.6}'
+  + '.none{font-size:13px;color:#a0a0a0;font-style:italic;margin-top:18px}'
+  + 'ul{margin:0;padding-left:20px}li{margin-bottom:6px;font-size:14.5px;color:#3d3d3d}'
+  + 'footer{margin-top:50px;padding-top:16px;border-top:3px solid #0a0a0a;'
+  +   'font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8a8a8a;letter-spacing:.05em}'
+  + '@media print{.page{padding:0 0 20px}body{font-size:12pt}h1{font-size:44pt}h3{font-size:19pt}'
+  +   '@page{margin:18mm 16mm}.cover{page-break-after:always}}'
+  + '</style></head><body><div class="page">'
+  + '<div class="cover"><div class="eyebrow">'+esc(L("nbEyebrow"))+'</div>'
+  + '<h1>'+esc(L("nbTitle"))+'</h1>'
+  + '<div class="tag">'+esc(L("nbSubtitle"))+'</div>'
+  + '<div class="nums">'
+  +   '<div><b>'+list.length+'</b><span>'+esc(L("nbCount"))+'</span></div>'
+  +   '<div><b>'+avg+'</b><span>'+esc(L("nbAvg"))+'</span></div>'
+  +   '<div><b>'+words+'</b><span>'+esc(L("nbWords"))+'</span></div>'
+  + '</div></div>'
+  + body
+  + '<footer>'+esc(L("nbGenerated"))+' '+stamp+'</footer>'
+  + '</div></body></html>';
+}
+function nbDownload(){
+  if(!Object.keys(S.notes).length){ toast(L("nbEmpty")); return; }
+  const d=new Date(), pad=x=>String(x).padStart(2,"0");
+  const blob=new Blob([nbHTML()],{type:"text/html;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="konspekt-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".html";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },400);
+  toast(L("nbSaved")); beep(880,.1,"triangle",.06);
+}
+function nbPrint(){
+  if(!Object.keys(S.notes).length){ toast(L("nbEmpty")); return; }
+  const w = window.open("","_blank");
+  if(!w){ toast(L("nbOpenFail")); return; }
+  w.document.write(nbHTML()); w.document.close();
+  setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} }, 700);
 }
 
 /* ============================================================
@@ -2613,7 +3523,7 @@ function tab(name){
   }
 
   box.innerHTML = rows.length ? rows.map(r=>
-    '<div class="item" style="--rc:'+(RAR[r.f.t.rarity]||RAR.common).c+'"><div><div class="nm">'+esc(r.f.t.title)+'</div>'
+    '<div class="item" style="--rc:'+(RAR[r.f.t.rarity]||RAR.common).c+'"><div><div class="nm">'+esc(TT(r.f.t))+'</div>'
     + '<div class="mt">'+esc(r.meta)+'</div></div>'+r.right+'</div>').join("")
     : '<div class="empty">'+(name==="learned"?L("emptyLearned"):name==="repeat"?L("emptyRepeat"):L("emptyTodo"))+'</div>';
 }
